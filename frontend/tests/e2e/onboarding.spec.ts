@@ -11,7 +11,7 @@ test.describe('Onboarding', () => {
     await expect(page).toHaveURL(/\/dashboard/);
   }
 
-  // Helper to clear seen dialogs from localStorage
+  // Helper to clear seen dialogs from localStorage - reserved for future tests
   async function _clearSeenDialogs(page: typeof import('@playwright/test').Page.prototype) {
     await page.evaluate(() => {
       // Clear redux-persist state to reset seen dialogs

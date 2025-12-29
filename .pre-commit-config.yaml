@@ -13,25 +13,27 @@ repos:
       - id: ruff-format
         name: ruff format (Python formatter)
 
-  # JavaScript/TypeScript linting
+  # JavaScript/TypeScript linting (runs from frontend/)
   - repo: local
     hooks:
       - id: eslint
         name: ESLint (JS/TS linter)
-        entry: bash -c 'source ~/.nvm/nvm.sh && nvm use 20 && cd frontend && npx eslint --fix "${@#frontend/}"'
+        entry: bash -c 'cd frontend && source ~/.nvm/nvm.sh && nvm use 20 && npx eslint --fix .'
         language: system
-        files: ^frontend/.*\.(js|jsx|ts|tsx)$
-        pass_filenames: true
+        types_or: [javascript, jsx, ts, tsx]
+        files: ^frontend/
+        pass_filenames: false
 
-  # CSS/SCSS linting
+  # CSS/SCSS linting (runs from frontend/)
   - repo: local
     hooks:
       - id: stylelint
         name: Stylelint (CSS/SCSS linter)
-        entry: bash -c 'source ~/.nvm/nvm.sh && nvm use 20 && cd frontend && npx stylelint --fix "${@#frontend/}"'
+        entry: bash -c 'cd frontend && source ~/.nvm/nvm.sh && nvm use 20 && npx stylelint --fix "src/**/*.css"'
         language: system
-        files: ^frontend/.*\.(css|scss|sass)$
-        pass_filenames: true
+        types: [css, scss, sass]
+        files: ^frontend/
+        pass_filenames: false
 
   # General checks
   - repo: https://github.com/pre-commit/pre-commit-hooks
@@ -45,6 +47,7 @@ repos:
         name: Check YAML syntax
       - id: check-json
         name: Check JSON syntax
+        exclude: 'tsconfig.*\.json$'
       - id: check-toml
         name: Check TOML syntax
       - id: check-added-large-files

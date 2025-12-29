@@ -98,7 +98,7 @@ test.describe('Chat Interaction', () => {
   test('should maintain chat history on page refresh', async ({ page }) => {
     await createNewChat(page);
 
-    // Get the current URL (contains chat ID)
+    // Get the current URL (contains chat ID) - kept for potential debugging
     const _chatUrl = page.url();
 
     // Send a message

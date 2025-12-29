@@ -99,7 +99,7 @@ test.describe('Chat Interaction', () => {
     await createNewChat(page);
 
     // Get the current URL (contains chat ID)
-    const chatUrl = page.url();
+    const _chatUrl = page.url();
 
     // Send a message
     const testMessage = 'Test message for persistence';

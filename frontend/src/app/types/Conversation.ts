@@ -11,7 +11,7 @@ export interface Chat {
         id: string;
         title: string;
         models: string[];
-        params: Record<string, any>;
+        params: Record<string, unknown>;
         history: {
             messages: Record<string, {
                 id: string;
@@ -23,14 +23,14 @@ export interface Chat {
                 model?: string;
                 modelName?: string;
                 modelIdx?: number;
-                userContext?: any;
+                userContext?: unknown;
                 lastSentence?: string;
                 usage?: {
                     prompt_tokens: number;
                     completion_tokens: number;
                     total_tokens: number;
-                    prompt_tokens_details?: any;
-                    completion_tokens_details?: any;
+                    prompt_tokens_details?: unknown;
+                    completion_tokens_details?: unknown;
                 };
                 done?: boolean;
             }>;
@@ -39,7 +39,7 @@ export interface Chat {
         messages: ChatMessage[];
         tags: string[];
         timestamp: number;
-        files: any[];
+        files: unknown[];
         model: string;
     };
     updated_at: number;

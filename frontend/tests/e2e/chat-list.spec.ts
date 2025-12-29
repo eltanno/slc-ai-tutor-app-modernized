@@ -23,7 +23,7 @@ test.describe('Chat List', () => {
   }
 
   // Helper to create a chat for testing
-  async function createTestChat(page: typeof import('@playwright/test').Page.prototype) {
+  async function _createTestChat(page: typeof import('@playwright/test').Page.prototype) {
     await page.goto('/chat-instructions/unit1_conversation1');
     await page.getByRole('button', { name: 'Start Chat' }).click();
     await expect(page).toHaveURL(/\/chat\/\d+/, { timeout: 15000 });

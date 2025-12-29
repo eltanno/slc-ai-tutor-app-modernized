@@ -1,5 +1,44 @@
 # Claude Code Project Context
 
+## CRITICAL: Workflow Discipline
+
+**STOP. PLAN. THEN ACT.**
+
+Before writing ANY code or making ANY changes:
+
+### 1. Plan First
+- Understand the full scope of what's being asked
+- Identify all files that will be touched
+- Consider edge cases and testing needs
+- If unsure, ASK before proceeding
+
+### 2. Follow the Issue → PR Workflow (NO EXCEPTIONS)
+1. **Create GitHub issue** - describe what will be done
+2. **Create Trello card** - link to GitHub issue
+3. **Create feature branch** - `feature/issue-{number}-{description}`
+4. **Move Trello card to Doing**
+5. **Write code** - only now
+6. **Commit** - ensure linting passes BEFORE committing
+7. **Push and create PR**
+8. **Move Trello card to Testing/Review**
+9. **Merge only after review**
+10. **Move Trello card to Done**
+
+### 3. Never Do These Things
+- Never commit directly to main
+- Never write code before creating an issue
+- Never create a PR without a linked issue
+- Never skip the Trello sync
+- Never rush - methodical is faster than fixing mistakes
+
+### 4. If You Made a Mistake
+- Stop immediately
+- Acknowledge the mistake clearly
+- Propose a fix
+- Ask the user before proceeding
+
+---
+
 ## Trello Integration
 
 - **Board:** SLC AI Prototype

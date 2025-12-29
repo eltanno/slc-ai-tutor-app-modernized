@@ -79,11 +79,11 @@ test.describe('Authentication', () => {
     // Should be on dashboard
     await expect(page).toHaveURL(/\/dashboard/);
 
-    // Close welcome dialog if it appears
-    const closeButton = page.getByRole('button', { name: 'close' });
-    if (await closeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await closeButton.click();
-    }
+    // Welcome dialog always appears on first dashboard visit - wait for it and close it
+    const welcomeDialog = page.getByRole('dialog', { name: 'Welcome to the site!' });
+    await expect(welcomeDialog).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'close' }).click();
+    await expect(welcomeDialog).not.toBeVisible({ timeout: 5000 });
 
     // Dashboard should show app header (MUI Button with Link component has role=link)
     await expect(page.getByRole('link', { name: 'SLC AI Demo App' })).toBeVisible({ timeout: 10000 });
@@ -99,11 +99,11 @@ test.describe('Authentication', () => {
     // Wait for dashboard
     await expect(page).toHaveURL(/\/dashboard/);
 
-    // Close welcome dialog if it appears
-    const closeButton = page.getByRole('button', { name: 'close' });
-    if (await closeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
-      await closeButton.click();
-    }
+    // Welcome dialog always appears on first dashboard visit - wait for it and close it
+    const welcomeDialog = page.getByRole('dialog', { name: 'Welcome to the site!' });
+    await expect(welcomeDialog).toBeVisible({ timeout: 10000 });
+    await page.getByRole('button', { name: 'close' }).click();
+    await expect(welcomeDialog).not.toBeVisible({ timeout: 5000 });
 
     // Click logout (MUI Button with Link component has role=link)
     await page.getByRole('link', { name: 'Log out' }).click();

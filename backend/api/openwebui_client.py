@@ -16,7 +16,7 @@ class OpenWebUIClient:
     Automatically manages token refresh on 401 errors.
     """
 
-    def __init__(self, user: User = None, user_token: str = None):
+    def __init__(self, user: User = None, user_token: str | None = None):
         """
         Initialize OpenWebUI client.
 
@@ -80,7 +80,7 @@ class OpenWebUIClient:
             try:
                 from .models import UserProfile
 
-                profile, created = UserProfile.objects.get_or_create(user=self.user)
+                profile, _created = UserProfile.objects.get_or_create(user=self.user)
                 profile.openwebui_token = token
                 profile.save()
             except Exception as e:
@@ -167,7 +167,7 @@ class OpenWebUIClient:
                 try:
                     from .models import UserProfile
 
-                    profile = UserProfile.objects.get(user=self.user)
+                    UserProfile.objects.get(user=self.user)
 
                     # Check if we have stored credentials for automatic re-login
                     # Note: For now, we'll just raise an error since we don't store passwords
@@ -314,8 +314,7 @@ class OpenWebUIClient:
 
         # Extract content from first choice
         try:
-            content = response['choices'][0]['message']['content']
-            return content
+            return response['choices'][0]['message']['content']
         except (KeyError, IndexError) as e:
             logger.error(f'Failed to extract content from response: {response}')
             raise Exception(f'Invalid response structure: {e}. Response: {response}')
@@ -398,8 +397,7 @@ class OpenWebUIClient:
 
         # Parse JSON response
         try:
-            grading_data = json.loads(content)
-            return grading_data
+            return json.loads(content)
         except json.JSONDecodeError as e:
             logger.error(f'Failed to parse grading JSON. Content: {content}')
             raise Exception(f'Failed to parse grading response as JSON: {e!s}')

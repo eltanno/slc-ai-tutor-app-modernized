@@ -6,11 +6,28 @@
 
 Before writing ANY code or making ANY changes:
 
-### 1. Plan First
-- Understand the full scope of what's being asked
-- Identify all files that will be touched
-- Consider edge cases and testing needs
-- If unsure, ASK before proceeding
+### 1. Plan First (MANDATORY)
+
+**Before installing dependencies, writing code, or creating branches:**
+
+1. **Research the codebase** - understand existing patterns and structure
+2. **Write up a comprehensive plan** - present it to the user for review
+3. **Create ALL tickets upfront** - break work into logical issues with clear scope
+4. **Get user approval** - only proceed after the plan is approved
+
+**What a plan should include:**
+- Summary of what we're building
+- List of all tickets/issues to create (with descriptions)
+- Technical approach and key decisions
+- Test strategy
+- Any risks or open questions
+
+**Use `/plan` mode** for non-trivial work. This enforces the planning workflow.
+
+**Never:**
+- Install dependencies before planning
+- Create a single "umbrella" issue and figure it out as you go
+- Start coding before the user has seen and approved the plan
 
 ### 2. Follow the Issue → PR Workflow (NO EXCEPTIONS)
 1. **Create GitHub issue** - describe what will be done
@@ -25,6 +42,8 @@ Before writing ANY code or making ANY changes:
 10. **Move Trello card to Done**
 
 ### 3. Never Do These Things
+- Never start work without a written plan approved by the user
+- Never install dependencies before planning
 - Never commit directly to main
 - Never write code before creating an issue
 - Never create a PR without a linked issue

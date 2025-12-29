@@ -143,6 +143,57 @@ npx eslint . --fix
 pre-commit run --all-files
 ```
 
+## Testing
+
+### Backend Tests
+
+The backend uses pytest with pytest-django. Tests are located in `backend/tests/`.
+
+```bash
+cd backend
+source .venv/bin/activate
+
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=api --cov-report=term-missing
+
+# Run specific test file
+pytest tests/test_auth.py
+
+# Run tests matching a pattern
+pytest -k "test_login"
+```
+
+### Frontend E2E Tests
+
+The frontend uses Playwright for end-to-end testing. Tests are located in `frontend/tests/e2e/`.
+
+**Prerequisites:** The local dev environment (backend + frontend) must be running before running E2E tests.
+
+```bash
+cd frontend
+
+# Install Playwright browsers (first time only)
+npx playwright install
+
+# Run all E2E tests
+npm run test:e2e
+
+# Run with interactive UI
+npm run test:e2e:ui
+
+# Run in debug mode
+npm run test:e2e:debug
+
+# Run specific test file
+npx playwright test auth.spec.ts
+
+# Run tests with visible browser
+npx playwright test --headed
+```
+
 ## Modernization Status
 
 This codebase is undergoing active modernization. Track progress:

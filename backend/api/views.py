@@ -1,5 +1,3 @@
-import math
-
 from django.contrib.auth.models import User
 from django.utils import timezone
 from rest_framework import generics, permissions, status
@@ -22,6 +20,12 @@ from .serializers import (
     ChatSerializer,
     NoteSerializer,
     UserSerializer,
+)
+from .utils import (
+    check_chat_not_completed,
+    check_max_turns_not_exceeded,
+    get_openwebui_token,
+    get_pagination_data,
 )
 
 
@@ -158,7 +162,7 @@ class DebugConfigView(APIView):
             config_info['token_length'] = (
                 len(profile.openwebui_token) if profile.openwebui_token else 0
             )
-        except:
+        except (AttributeError, Exception):
             pass
 
         return Response(config_info)
@@ -387,28 +391,6 @@ class UserChats(generics.GenericAPIView):
             },
             status=status.HTTP_200_OK,
         )
-        """Create a new chat."""
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            chat = serializer.save(user=request.user)
-            # Return with full user object
-            response_serializer = ChatSerializer(chat)
-            return Response(
-                {
-                    'status': 'success',
-                    'message': 'Chat created successfully',
-                    'chat': response_serializer.data,
-                },
-                status=status.HTTP_201_CREATED,
-            )
-        return Response(
-            {
-                'status': 'fail',
-                'message': 'Chat creation failed',
-                'errors': serializer.errors,
-            },
-            status=status.HTTP_400_BAD_REQUEST,
-        )
 
 
 class ChatDetail(generics.GenericAPIView):
@@ -597,30 +579,14 @@ class ChatSendMessageView(APIView):
             )
 
         # Check if chat is completed or graded
-        if chat.completed or chat.status == Chat.STATUS_COMPLETE:
-            return Response(
-                {
-                    'status': 'fail',
-                    'message': 'Cannot send messages to a completed or graded chat',
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        error = check_chat_not_completed(chat, 'send messages to')
+        if error:
+            return error
 
-        # Check if max turns reached (if max_turns is set in course_data)
-        if chat.course_data and isinstance(chat.course_data, dict):
-            max_turns = chat.course_data.get('max_turns')
-            if max_turns is not None:
-                current_turn_count = len(
-                    [m for m in chat.messages if m.get('role') == 'user']
-                )
-                if current_turn_count >= max_turns:
-                    return Response(
-                        {
-                            'status': 'fail',
-                            'message': f'Maximum turns ({max_turns}) reached for this chat',
-                        },
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
+        # Check if max turns reached
+        error = check_max_turns_not_exceeded(chat)
+        if error:
+            return error
 
         user_message = request.data.get('message')
         if not user_message:
@@ -636,20 +602,9 @@ class ChatSendMessageView(APIView):
         is_action = request.data.get('is_action', False)
 
         # Get OpenWebUI token from user profile
-        try:
-            openwebui_token = request.user.profile.openwebui_token
-        except:
-            openwebui_token = None
-
-        if not openwebui_token:
-            return Response(
-                {
-                    'status': 'fail',
-                    'message': 'OpenWebUI token not found. Please log in again.',
-                    'error_code': 'TOKEN_EXPIRED',
-                },
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        openwebui_token, token_error = get_openwebui_token(request.user)
+        if token_error:
+            return token_error
 
         # Update chat status to in_progress immediately
         chat.status = Chat.STATUS_IN_PROGRESS
@@ -690,30 +645,14 @@ class ChatGetHelpView(APIView):
             )
 
         # Check if chat is completed or graded
-        if chat.completed or chat.status == Chat.STATUS_COMPLETE:
-            return Response(
-                {
-                    'status': 'fail',
-                    'message': 'Cannot request help for a completed or graded chat',
-                },
-                status=status.HTTP_400_BAD_REQUEST,
-            )
+        error = check_chat_not_completed(chat, 'request help for')
+        if error:
+            return error
 
-        # Check if max turns reached (if max_turns is set in course_data)
-        if chat.course_data and isinstance(chat.course_data, dict):
-            max_turns = chat.course_data.get('max_turns')
-            if max_turns is not None:
-                current_turn_count = len(
-                    [m for m in chat.messages if m.get('role') == 'user']
-                )
-                if current_turn_count >= max_turns:
-                    return Response(
-                        {
-                            'status': 'fail',
-                            'message': f'Maximum turns ({max_turns}) reached for this chat',
-                        },
-                        status=status.HTTP_400_BAD_REQUEST,
-                    )
+        # Check if max turns reached
+        error = check_max_turns_not_exceeded(chat)
+        if error:
+            return error
 
         if not chat.messages:
             return Response(
@@ -753,20 +692,9 @@ class ChatGetHelpView(APIView):
             )
 
         # Get OpenWebUI token from user profile
-        try:
-            openwebui_token = request.user.profile.openwebui_token
-        except:
-            openwebui_token = None
-
-        if not openwebui_token:
-            return Response(
-                {
-                    'status': 'fail',
-                    'message': 'OpenWebUI token not found. Please log in again.',
-                    'error_code': 'TOKEN_EXPIRED',
-                },
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        openwebui_token, token_error = get_openwebui_token(request.user)
+        if token_error:
+            return token_error
 
         # Add "processing" placeholder
         help_entry = {
@@ -791,30 +719,6 @@ class ChatGetHelpView(APIView):
             },
             status=status.HTTP_202_ACCEPTED,
         )
-
-    def _format_conversation(self, chat: Chat) -> str:
-        """Format chat data for help request."""
-        # Get metadata
-        metadata = {
-            'title': chat.title,
-            'course_data': chat.course_data,
-            'avatar_id': chat.avatar_id,
-            'interaction_count': chat.interaction_count,
-        }
-
-        # Format transcript
-        transcript_lines = []
-        for msg in chat.messages:
-            role = 'User' if msg.get('role') == 'user' else 'Resident'
-            transcript_lines.append(f'{role}: {msg.get("content", "")}')
-
-        transcript = '\n'.join(transcript_lines)
-
-        return f"""CONVERSATION METADATA:
-{metadata}
-
-CONVERSATION TRANSCRIPT:
-{transcript}"""
 
 
 class ChatGradeView(APIView):
@@ -879,20 +783,9 @@ class ChatGradeView(APIView):
             )
 
         # Get OpenWebUI token from user profile
-        try:
-            openwebui_token = request.user.profile.openwebui_token
-        except:
-            openwebui_token = None
-
-        if not openwebui_token:
-            return Response(
-                {
-                    'status': 'fail',
-                    'message': 'OpenWebUI token not found. Please log in again.',
-                    'error_code': 'TOKEN_EXPIRED',
-                },
-                status=status.HTTP_401_UNAUTHORIZED,
-            )
+        openwebui_token, token_error = get_openwebui_token(request.user)
+        if token_error:
+            return token_error
 
         # Update chat status to grading
         chat.status = Chat.STATUS_GRADING
@@ -909,69 +802,3 @@ class ChatGradeView(APIView):
             },
             status=status.HTTP_202_ACCEPTED,
         )
-
-    def _format_conversation(self, chat: Chat) -> str:
-        """Format chat data for grading request."""
-        import json
-
-        # Get metadata
-        metadata = {
-            'title': chat.title,
-            'course_data': chat.course_data,
-            'avatar_id': chat.avatar_id,
-            'interaction_count': chat.interaction_count,
-        }
-
-        # Format transcript
-        transcript_lines = []
-        for msg in chat.messages:
-            role = 'User' if msg.get('role') == 'user' else 'Resident'
-            transcript_lines.append(f'{role}: {msg.get("content", "")}')
-
-        transcript = '\n'.join(transcript_lines)
-
-        return f"""CONVERSATION METADATA:
-{json.dumps(metadata, indent=2)}
-
-CONVERSATION TRANSCRIPT:
-{transcript}"""
-
-
-def get_pagination_data(request, total_items):
-    # parse query params defensively
-    try:
-        page = int(request.GET.get('page', 1))
-    except (TypeError, ValueError):
-        page = 1
-    try:
-        page_size = int(request.GET.get('page_size', 10))
-    except (TypeError, ValueError):
-        page_size = 10
-
-    if page < 1:
-        page = 1
-    if page_size <= 0:
-        page_size = 10
-
-    total_pages = max(1, math.ceil(total_items / page_size)) if page_size > 0 else 1
-    next_page = page + 1 if page < total_pages else None
-    prev_page = page - 1 if page > 1 else None
-
-    start_index = max(0, (page - 1) * page_size)
-    end_index = min(page * page_size, total_items)
-
-    start_item = start_index + 1 if total_items > 0 else 0
-    end_item = end_index
-
-    return {
-        'page': page,
-        'page_size': page_size,
-        'next_page': next_page,
-        'prev_page': prev_page,
-        'total_pages': total_pages,
-        'start_item': start_item,
-        'end_item': end_item,
-        'start_index': start_index,
-        'end_index': end_index,
-        'total_items': total_items,
-    }

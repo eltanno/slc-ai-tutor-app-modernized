@@ -2,7 +2,6 @@
 Background task handlers for async LLM operations.
 """
 
-import json
 import logging
 import threading
 
@@ -11,6 +10,7 @@ from django.utils import timezone
 from .models import Chat
 from .openwebui_client import OpenWebUIClient
 from .prompts import CHAT_GRADING_SYSTEM_PROMPT, CHAT_HELP_SYSTEM_PROMPT
+from .utils import format_conversation_for_llm
 
 
 logger = logging.getLogger(__name__)
@@ -215,24 +215,7 @@ def process_help_request_async(chat_id, user_token):
             chat.save()
 
             # Format conversation for help request
-            metadata = {
-                'title': chat.title,
-                'course_data': chat.course_data,
-                'avatar_id': chat.avatar_id,
-                'interaction_count': chat.interaction_count,
-            }
-
-            transcript_lines = []
-            for msg in chat.messages:
-                role = 'User' if msg.get('role') == 'user' else 'Resident'
-                transcript_lines.append(f'{role}: {msg.get("content", "")}')
-
-            transcript = '\n'.join(transcript_lines)
-            conversation_text = f"""CONVERSATION METADATA:
-{json.dumps(metadata, indent=2)}
-
-CONVERSATION TRANSCRIPT:
-{transcript}"""
+            conversation_text = format_conversation_for_llm(chat)
 
             # Prepare messages for help
             messages = [
@@ -301,8 +284,8 @@ CONVERSATION TRANSCRIPT:
                 # Reset chat status to ready even on error
                 chat.status = Chat.STATUS_READY
                 chat.save()
-            except:
-                pass
+            except Exception:  # nosec B110
+                pass  # Chat may have been deleted - nothing we can do
 
     # Start background thread
     thread = threading.Thread(target=task)
@@ -320,25 +303,8 @@ def process_grading_async(chat_id: int, openwebui_token: str):
         try:
             chat = Chat.objects.get(pk=chat_id)
 
-            # Format conversation
-            metadata = {
-                'title': chat.title,
-                'course_data': chat.course_data,
-                'avatar_id': chat.avatar_id,
-                'interaction_count': chat.interaction_count,
-            }
-
-            transcript_lines = []
-            for msg in chat.messages:
-                role = 'User' if msg.get('role') == 'user' else 'Resident'
-                transcript_lines.append(f'{role}: {msg.get("content", "")}')
-
-            transcript = '\n'.join(transcript_lines)
-            conversation_text = f"""CONVERSATION METADATA:
-{json.dumps(metadata, indent=2)}
-
-CONVERSATION TRANSCRIPT:
-{transcript}"""
+            # Format conversation for grading request
+            conversation_text = format_conversation_for_llm(chat)
 
             # Prepare messages for grading
             messages = [

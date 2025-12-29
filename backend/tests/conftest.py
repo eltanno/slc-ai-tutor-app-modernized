@@ -8,10 +8,22 @@ This file is automatically loaded by pytest and provides:
 """
 
 import pytest
+import responses as responses_lib
 from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .factories import ChatFactory, NoteFactory, UserFactory, UserProfileFactory
+
+
+@pytest.fixture
+def responses():
+    """Activate responses mock for HTTP requests.
+
+    This fixture activates the responses library to mock HTTP requests.
+    All requests made during the test will be intercepted unless explicitly mocked.
+    """
+    with responses_lib.RequestsMock() as rsps:
+        yield rsps
 
 
 @pytest.fixture

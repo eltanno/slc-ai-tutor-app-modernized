@@ -181,7 +181,7 @@ fixable = [
     "ANN201", # Return type relaxed for view helper
 ]
 
-# Views can be complex
+# Views can be complex (both original views.py and views/ package)
 "backend/api/views.py" = [
     "D101",   # Docstrings not required for viewset classes
     "D102",   # Docstrings not required for view methods (self-documenting)
@@ -198,6 +198,25 @@ fixable = [
     "RUF012", # Mutable class attributes (DRF pattern)
     "BLE001", # Blind except for resilience
     "S110",   # try-except-pass for resilience
+]
+"backend/api/views/*.py" = [
+    "D101",   # Docstrings not required for viewset classes
+    "D102",   # Docstrings not required for view methods (self-documenting)
+    "D103",   # Docstrings not required for helper functions
+    "E501",   # Line length relaxed for complex queries
+    "E722",   # Bare except for resilience
+    "PLC0415", # Import inside function OK (lazy imports)
+    "ANN001", # Type annotations relaxed for DRF views
+    "ANN002", # *args annotation not needed
+    "ANN003", # **kwargs annotation not needed
+    "ANN201", # Return type relaxed for DRF views
+    "ANN204", # Return type relaxed for special methods
+    "ARG002", # Unused method argument (DRF pattern)
+    "RUF012", # Mutable class attributes (DRF pattern)
+    "RUF022", # __all__ sorting not required (grouped by domain)
+    "BLE001", # Blind except for resilience
+    "S110",   # try-except-pass for resilience
+    "TID252", # Relative imports from parent allowed in views package
 ]
 
 # Background tasks can be complex

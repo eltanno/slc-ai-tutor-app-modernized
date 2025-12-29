@@ -14,7 +14,7 @@ Before writing ANY code or making ANY changes:
 
 ### 2. Follow the Issue → PR Workflow (NO EXCEPTIONS)
 1. **Create GitHub issue** - describe what will be done
-2. **Create Trello card** - link to GitHub issue
+2. **Create Trello card** - link to GitHub issue, apply Green label
 3. **Create feature branch** - `feature/issue-{number}-{description}`
 4. **Move Trello card to Doing**
 5. **Write code** - only now
@@ -57,6 +57,12 @@ When working with Trello, use `mcp__trello__set_active_board` with the ID above 
 | Doing | `687149109e5460f7837fa33e` | In progress |
 | Testing / Review | `687149426e1fec1a2d441c3a` | Being tested or reviewed |
 | Done | `687149109e5460f7837fa33f` | Completed |
+
+### Board Labels
+
+| Label | ID | Use |
+|-------|----|----|
+| App Development (Green) | `687149109e5460f7837fa3eb` | All dev work |
 
 ### GitHub <-> Trello Workflow
 

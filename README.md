@@ -166,6 +166,26 @@ pytest tests/test_auth.py
 pytest -k "test_login"
 ```
 
+### Frontend Unit Tests
+
+The frontend uses Vitest with React Testing Library for unit tests. Tests are located in `frontend/tests/unit/`.
+
+```bash
+cd frontend
+
+# Run all unit tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Run with coverage report
+npm run test:coverage
+
+# Run specific test file
+npx vitest tests/unit/components/conversation/Conversation.test.tsx
+```
+
 ### Frontend E2E Tests
 
 The frontend uses Playwright for end-to-end testing. Tests are located in `frontend/tests/e2e/`.

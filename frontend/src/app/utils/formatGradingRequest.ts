@@ -77,14 +77,9 @@ export function prepareGradingMessages(
 ): Array<{ role: string; content: string }> {
     const userPrompt = formatGradingRequest(chatMetadata, messages);
 
-    // Log prompt size for debugging
+    // Calculate prompt size for warning check
     const promptChars = userPrompt.length;
     const estimatedTokens = Math.ceil(promptChars / 4); // Rough estimate: 1 token ≈ 4 chars
-
-    console.log("📊 Grading Prompt Stats:");
-    console.log(`  - Characters: ${promptChars.toLocaleString()}`);
-    console.log(`  - Estimated tokens: ${estimatedTokens.toLocaleString()}`);
-    console.log(`  - Messages in conversation: ${messages.length}`);
 
     if (estimatedTokens > 8000) {
         console.warn("⚠️  Warning: Prompt is very large (>8000 tokens). May exceed model context window.");

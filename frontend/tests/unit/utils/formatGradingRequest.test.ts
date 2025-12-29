@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import {
   formatGradingRequest,
   prepareGradingMessages,
@@ -86,19 +86,6 @@ describe('formatGradingRequest', () => {
 });
 
 describe('prepareGradingMessages', () => {
-  let consoleSpy: ReturnType<typeof vi.spyOn>;
-  let consoleWarnSpy: ReturnType<typeof vi.spyOn>;
-
-  beforeEach(() => {
-    consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
-    consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
-  });
-
-  afterEach(() => {
-    consoleSpy.mockRestore();
-    consoleWarnSpy.mockRestore();
-  });
-
   it('should return array with single user message', () => {
     const metadata = createTestMetadata();
     const messages: ChatMessage[] = [
@@ -110,20 +97,5 @@ describe('prepareGradingMessages', () => {
     expect(result).toHaveLength(1);
     expect(result[0].role).toBe('user');
     expect(result[0].content).toContain('LEARNER: Test message');
-  });
-
-  it('should log token estimate to console', () => {
-    const metadata = createTestMetadata();
-    const messages: ChatMessage[] = [
-      { role: 'user', content: 'Hello' },
-      { role: 'assistant', content: 'Hi there' },
-    ];
-
-    prepareGradingMessages(metadata, messages);
-
-    expect(consoleSpy).toHaveBeenCalledWith('📊 Grading Prompt Stats:');
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Characters:'));
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Estimated tokens:'));
-    expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining('Messages in conversation:'));
   });
 });

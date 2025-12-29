@@ -43,7 +43,6 @@ const TestPage = () => {
 
     // Skip queries if not logged in
     const notesQuery = useGetNotesQuery({}, { skip: !apiToken });
-    console.log("Notes query:", notesQuery);
     const djangoAPiCall = useMemo(() => {
         return notesQuery.isSuccess;
     }, [notesQuery]);

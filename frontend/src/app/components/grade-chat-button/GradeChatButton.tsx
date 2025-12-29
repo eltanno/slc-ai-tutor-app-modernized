@@ -44,12 +44,8 @@ export default function GradeChatButton({
         setIsGrading(true);
 
         try {
-            console.log("Sending grading request for chat ID:", chatId);
-
             // Send grading request to Django API
             const response = await gradeChat(chatId);
-
-            console.log("Grading response:", response);
 
             if ('data' in response && response.data) {
                 const grading = response.data.grading;
@@ -58,10 +54,6 @@ export default function GradeChatButton({
                     onGradingComplete(grading);
                 }
 
-                // Show message if it was already graded
-                if (response.data.message?.includes('already graded')) {
-                    console.log("Returning cached grading results");
-                }
             } else if ('error' in response) {
                 // Extract detailed error information
                 const error = response.error as { data?: { detail?: string; message?: string }; message?: string };

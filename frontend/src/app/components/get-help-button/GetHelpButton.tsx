@@ -42,12 +42,8 @@ export default function GetHelpButton({
         setIsGettingHelp(true);
 
         try {
-            console.log("Requesting help for chat ID:", chatId);
-
             // Send help request to Django API
             const response = await getHelp(chatId);
-
-            console.log("Help response:", response);
 
             if ('data' in response && response.data) {
                 const helpText = response.data.help_text;

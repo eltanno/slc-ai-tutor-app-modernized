@@ -12,7 +12,7 @@ test.describe('Onboarding', () => {
   }
 
   // Helper to clear seen dialogs from localStorage
-  async function clearSeenDialogs(page: typeof import('@playwright/test').Page.prototype) {
+  async function _clearSeenDialogs(page: typeof import('@playwright/test').Page.prototype) {
     await page.evaluate(() => {
       // Clear redux-persist state to reset seen dialogs
       const persistKey = 'persist:root';

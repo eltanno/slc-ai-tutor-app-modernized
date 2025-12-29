@@ -7,7 +7,7 @@ import {
 import {Button} from "@mui/material";
 
 
-const LlmList = ({}) => {
+const LlmList = () => {
     const chatId = "0f7b0766-b99e-4a16-8ed0-1922bb8680d7";
     const models = useGetModelsQuery({});
     const chats = useGetChatsQuery({});

@@ -112,7 +112,7 @@ describe('preferences slice selectors', () => {
       userAvatarId: '7',
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     expect(getUserAvatarId(state as any)).toBe('7');
   });
 
@@ -122,7 +122,7 @@ describe('preferences slice selectors', () => {
       userAvatarId: '1',
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const avatar = getUserAvatar(state as any);
 
     expect(avatar).toBeDefined();
@@ -136,7 +136,7 @@ describe('preferences slice selectors', () => {
       apiToken: 'my-api-token',
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     expect(getApiToken(state as any)).toBe('my-api-token');
   });
 
@@ -146,7 +146,7 @@ describe('preferences slice selectors', () => {
       refreshToken: 'my-refresh-token',
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     expect(getRefreshToken(state as any)).toBe('my-refresh-token');
   });
 
@@ -156,7 +156,7 @@ describe('preferences slice selectors', () => {
       seenDialogs: { welcome: true, intro: false },
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     const dialogs = getSeenDialogs(state as any);
 
     expect(dialogs.welcome).toBe(true);
@@ -170,7 +170,7 @@ describe('preferences slice selectors', () => {
       chatSettings,
     });
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
     expect(getChatSettings(state as any)).toEqual(chatSettings);
   });
 });

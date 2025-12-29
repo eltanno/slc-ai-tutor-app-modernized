@@ -18,9 +18,9 @@ repos:
     hooks:
       - id: eslint
         name: ESLint (JS/TS linter)
-        entry: bash -c 'source ~/.nvm/nvm.sh && nvm use 20 && npx eslint --fix'
+        entry: bash -c 'source ~/.nvm/nvm.sh && nvm use 20 && cd frontend && npx eslint --fix "${@#frontend/}"'
         language: system
-        types_or: [javascript, jsx, ts, tsx]
+        files: ^frontend/.*\.(js|jsx|ts|tsx)$
         pass_filenames: true
 
   # CSS/SCSS linting
@@ -28,9 +28,9 @@ repos:
     hooks:
       - id: stylelint
         name: Stylelint (CSS/SCSS linter)
-        entry: bash -c 'source ~/.nvm/nvm.sh && nvm use 20 && npx stylelint --fix'
+        entry: bash -c 'source ~/.nvm/nvm.sh && nvm use 20 && cd frontend && npx stylelint --fix "${@#frontend/}"'
         language: system
-        types: [css, scss, sass]
+        files: ^frontend/.*\.(css|scss|sass)$
         pass_filenames: true
 
   # General checks

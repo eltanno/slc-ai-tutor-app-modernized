@@ -6,16 +6,16 @@ export const loadState = () => {
             return undefined;
         }
         return JSON.parse(serialState);
-    } catch (err) {
+    } catch {
         return undefined;
     }
 };
 
-export const saveState = (state: any) => {
+export const saveState = (state: unknown) => {
     try {
         const serialState = JSON.stringify(state);
         localStorage.setItem('appState', serialState);
     } catch(err) {
-        console.log(err);
+        console.error(err);
     }
 };

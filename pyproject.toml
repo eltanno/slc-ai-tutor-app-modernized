@@ -2,3 +2,26 @@
 # Bandit security scanner configuration
 # Exclude modernization scripts (they analyze legacy code and need flexibility)
 exclude_dirs = ["tests", ".venv", "node_modules", "tmp", "scripts/quality", "scripts/github", "scripts/modernize"]
+
+[tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "backend.settings_test"
+python_files = ["test_*.py", "*_test.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+testpaths = ["backend/tests"]
+addopts = [
+    "--strict-markers",
+    "-ra",
+    "--cov=api",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-fail-under=0",
+]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration tests",
+]

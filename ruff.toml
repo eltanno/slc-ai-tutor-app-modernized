@@ -67,6 +67,9 @@ ignore = [
     "T201",   # print() allowed (for scripts and debugging)
     "FBT001", # Boolean positional arg (sometimes needed)
     "FBT002", # Boolean default arg (sometimes needed)
+    "COM812", # Missing trailing comma (conflicts with formatter)
+    "Q000",   # Single quotes (let formatter handle)
+    "Q003",   # Avoidable escaped quotes (let formatter handle)
 ]
 
 # Allow auto-fixing for these rules
@@ -90,11 +93,18 @@ fixable = [
 
 [lint.per-file-ignores]
 # Test files can have some relaxed rules
-"tests/**/*.py" = [
+"backend/tests/**/*.py" = [
     "S101",   # Use of assert
+    "S106",   # Hardcoded passwords OK in tests
+    "S107",   # Hardcoded token defaults OK in tests
     "PLR2004", # Magic value in comparison
     "ANN",    # Type annotations not required in tests
     "D",      # Docstrings not required in tests
+    "ARG001", # Unused function argument (fixtures)
+    "ARG002", # Unused method argument (fixtures)
+    "PT004",  # Fixtures that don't return value (setup fixtures)
+    "SLF001", # Private member access OK in tests
+    "PLC0415", # Import inside function OK (fixtures with conditional imports)
 ]
 
 # Scripts can print and have relaxed rules

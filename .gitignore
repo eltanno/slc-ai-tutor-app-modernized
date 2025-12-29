@@ -5,13 +5,13 @@ node_modules
 dist
 
 .venv
-.env
 .db-data/
 .db-data2/
 .tmp/
 tmp/
 
-*.sql# Environment variables (contains secrets)
+*.sql
+# Environment variables (contains secrets)
 # Temporary files (agent-created summaries, scratch files)
 *.tmp
 # Python

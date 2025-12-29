@@ -73,7 +73,7 @@ default_language_version:
 fail_fast: false
 
 default_install_hook_types: [pre-commit]
-default_stages: [commit]
+default_stages: [pre-commit]
 
 # Exclude patterns
 exclude: '^(\.venv/|venv/|node_modules/|\.git/)'

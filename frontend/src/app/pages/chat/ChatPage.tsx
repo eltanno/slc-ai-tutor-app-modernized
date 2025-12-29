@@ -162,9 +162,7 @@ const ChatPage = () => {
             });
 
             if ('data' in messageResponse && messageResponse.data) {
-                // Response is 202 ACCEPTED - processing in background
-                console.log('Message is being processed asynchronously');
-                // Polling will update the UI when complete
+                // Response is 202 ACCEPTED - polling will update the UI when complete
             } else if ('error' in messageResponse) {
                 const error = messageResponse.error as ApiError;
                 setErrorMessage(error.message || "Failed to send message");
@@ -198,9 +196,7 @@ const ChatPage = () => {
             });
 
             if ('data' in messageResponse && messageResponse.data) {
-                // Response is 202 ACCEPTED - processing in background
-                console.log('Action message is being processed asynchronously');
-                // Polling will update the UI when complete
+                // Response is 202 ACCEPTED - polling will update the UI when complete
             } else if ('error' in messageResponse) {
                 const error = messageResponse.error as ApiError;
                 setErrorMessage(error.message || "Failed to send action");

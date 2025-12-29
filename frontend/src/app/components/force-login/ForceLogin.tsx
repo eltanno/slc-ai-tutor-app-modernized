@@ -74,6 +74,7 @@ const ForceLogin = ({children}: ForceLoginProps) => {
         };
 
         asyncCheckAuth();
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- intentionally run only on mount
     }, []);
 
     if(isAuthorized === null){

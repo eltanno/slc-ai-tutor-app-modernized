@@ -1,0 +1,7 @@
+slc.codesortium.com {
+	reverse_proxy slc-app:{$DJANGO_APP_PORT}
+}
+
+slc.codesortium.com:8080 {
+	reverse_proxy open-webui:8080
+}

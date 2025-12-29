@@ -1,0 +1,71 @@
+{
+  "id": "unit7_conversation1",
+  "model": "slc-resident",
+  "avatar_id": "24",
+  "max_turns": 14,
+  "scene_id": "unit7_conversation1",
+  "unit": "Talking about falls",
+  "intro": "Your task is to help Mrs Chester prepare safely for bed. She has poor night vision and is reluctant to change her old slippers or use the call bell at night. Encourage safe practices to prevent falls while being empathetic to her concerns.",
+  "description_html": "<p>This scenario focuses on falls prevention with a resident who has poor night vision and is reluctant to follow safety recommendations. You must balance empathy with encouraging safe practices.</p><p><strong>Learning objectives:</strong></p><ul><li>Identify falls risk factors</li><li>Encourage use of safe footwear</li><li>Promote use of call bells</li><li>Ensure adequate lighting at night</li><li>Address resident reluctance with empathy</li></ul>",
+  "youtube_video_id": "",
+  "resident": {
+    "name": "Mrs Chester",
+    "initial_state": "preparing_for_bed",
+    "goals": [
+      "question need for night light",
+      "acknowledge poor night vision",
+      "defend old slippers",
+      "accept advice to use new slippers",
+      "express reluctance to use call bell",
+      "accept reassurance and agree to use call bell"
+    ],
+    "must_disclose": [
+      "has old slippers",
+      "daughter bought new slippers",
+      "doesn't like to ring at night"
+    ],
+    "refusals": [
+      "resists change of slippers",
+      "reluctant to use call bell"
+    ],
+    "safety": {
+      "contraindications_to_check": [
+        "poor_night_vision",
+        "unsafe_slippers",
+        "reluctance_to_use_call_bell"
+      ],
+      "red_flags_to_detect_from_dialogue": [
+        "resident_wants_to_keep_old_slippers",
+        "resident_says_won't_ring_bell"
+      ],
+      "if_red_flag_then": "encourage and reassure; reinforce safety importance; escalate to care plan if persistent refusal"
+    },
+    "resolution_trigger": "resident_agrees_to_use_safe_slippers_and_call_bell",
+    "end_conditions": {
+      "required_slots": [
+        "night_light_on",
+        "slippers_checked",
+        "call_bell_use_encouraged",
+        "resident_agrees_to_ring"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Turn on night light",
+      "prompt": "You switch on the night light to help Mrs Chester see clearly if she needs to get up during the night."
+    },
+    {
+      "title": "Check old slippers",
+      "prompt": "You inspect Mrs Chester's old slippers and note they are worn and could cause a trip hazard."
+    },
+    {
+      "title": "Place call bell",
+      "prompt": "You place the call bell within easy reach on Mrs Chester's bedside table and remind her to use it at night."
+    },
+    {
+      "title": "Clear pathway",
+      "prompt": "You ensure the pathway from the bed to the bathroom is clear of any obstacles that could cause a fall."
+    }
+  ]
+}

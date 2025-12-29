@@ -1,0 +1,74 @@
+.idea
+.git
+.env
+node_modules
+dist
+
+.venv
+.env
+.db-data/
+.db-data2/
+.tmp/
+tmp/
+
+*.sql# Environment variables (contains secrets)
+# Temporary files (agent-created summaries, scratch files)
+*.tmp
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+# Virtual Environments
+env/
+venv/
+ENV/
+.venv/
+env.bak/
+venv.bak/
+# Build artifacts
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+# Node.js
+node_modules/
+package-lock.json
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+# OS
+.DS_Store
+Thumbs.db
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+coverage/
+.nyc_output/
+# Linter caches
+.eslintcache
+.stylelintcache
+.ruff_cache/
+# Logs
+*.log
+# Environment variables (contains secrets)

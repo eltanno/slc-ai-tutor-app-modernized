@@ -1,0 +1,4 @@
+[tool.bandit]
+# Bandit security scanner configuration
+# Exclude modernization scripts (they analyze legacy code and need flexibility)
+exclude_dirs = ["tests", ".venv", "node_modules", "tmp", "scripts/quality", "scripts/github", "scripts/modernize"]

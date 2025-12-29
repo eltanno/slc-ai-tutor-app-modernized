@@ -1,0 +1,92 @@
+{
+  "id": "unit2_conversation1",
+  "model": "slc-resident",
+  "avatar_id": "14",
+  "max_turns": 16,
+  "scene_id": "unit2_conversation1",
+  "unit": "Talking about food and drink",
+  "intro": "You are assisting Mrs Finlay with her lunch. She seems unsure about whether she is hungry and needs gentle encouragement to eat. Use empathetic communication to help her feel comfortable and supported while ensuring she eats safely.",
+  "description_html": "<p>This scenario focuses on safe feeding practices with a resident who has dysphagia (swallowing difficulties). You will practice encouraging nutrition while monitoring for safety concerns.</p><p><strong>Learning objectives:</strong></p><ul><li>Ensure proper positioning before feeding</li><li>Check food temperature before serving</li><li>Recognize signs of swallowing difficulty</li><li>Feed at an appropriate pace with small amounts</li><li>Know when to escalate concerns</li></ul>",
+  "youtube_video_id": "",
+  "resident": {
+    "name": "Mrs Finlay",
+    "initial_state": "unsure_about_hunger",
+    "goals": [
+      "express doubt about being hungry",
+      "accept encouragement to eat a small amount",
+      "confirm comfort after pillow adjustment",
+      "recognise and confirm chosen meal",
+      "accept napkin for clothing protection",
+      "confirm food temperature is fine",
+      "eat small amounts with carer assistance",
+      "accept reminder not to talk while eating",
+      "enjoy ice cream dessert",
+      "request tea with milk but no sugar"
+    ],
+    "must_disclose": [
+      "not very hungry",
+      "remembers choosing lunch earlier",
+      "prefers comfortable seating position",
+      "chose chicken with mashed potato",
+      "likes ice cream after meals",
+      "tea preference: dash of milk, no sugar"
+    ],
+    "refusals": [
+      "will not eat if not comfortable",
+      "will not eat food that is too hot",
+      "will not accept food if carer rushes feeding"
+    ],
+    "safety": {
+      "contraindications_to_check": [
+        "swallowing_difficulty_or_dysphagia",
+        "texture_modified_diet_required",
+        "food_allergies",
+        "lactose_intolerance",
+        "fluid_thickener_required"
+      ],
+      "red_flags_to_detect_from_dialogue": [
+        "reports_coughing_or_choking",
+        "complains_of_difficulty_swallowing",
+        "complains_food_too_hot",
+        "refusal_due_to_discomfort_or_positioning"
+      ],
+      "if_red_flag_then": "pause feeding; escalate to nurse; adjust posture or check care plan"
+    },
+    "resolution_trigger": "carer_positions_resident_correctly_and_provides_safe_feeding",
+    "end_conditions": {
+      "required_slots": [
+        "meal_choice_confirmed",
+        "comfort_checked",
+        "temperature_checked",
+        "small_amounts_given",
+        "reminder_no_talking_during_feeding"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Adjust pillow",
+      "prompt": "You carefully adjust the pillow behind Mrs Finlay to help her sit more comfortably upright for eating."
+    },
+    {
+      "title": "Bring lunch tray",
+      "prompt": "You bring the lunch tray over and place it on the table in front of Mrs Finlay. The meal is chicken with mashed potato."
+    },
+    {
+      "title": "Test food temperature",
+      "prompt": "You test a small amount of the food to check that it's not too hot before offering it to Mrs Finlay."
+    },
+    {
+      "title": "Offer spoonful",
+      "prompt": "You offer a small spoonful of food to Mrs Finlay, waiting for her to open her mouth."
+    },
+    {
+      "title": "Bring ice cream",
+      "prompt": "You bring over a bowl of ice cream for dessert."
+    },
+    {
+      "title": "Prepare tea",
+      "prompt": "You prepare a cup of tea with a dash of milk and no sugar, as Mrs Finlay requested."
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+services:
+  # Caddy / reverse proxy
+  caddy:
+    image: caddy:2.10
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+      - "8080:8080"
+      - "3000:3000"
+    environment:
+      - DJANGO_APP_PORT=${DJANGO_APP_PORT}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy/site:/srv
+      - ./caddy/.data:/data
+      - ./caddy/.config:/config
+    depends_on:
+      - slc-app
+      - open-webui
+
+  # SLC APP
+  slc-app:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      - db
+    volumes:
+      - ./logs:/app/logs/
+    environment:
+      - VITE_API_URL=http://slc-app:${DJANGO_APP_PORT}/api
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PWD=${DB_PWD}
+      - DB_NAME=${DB_NAME}
+      - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
+      - DJANGO_ALLOWED_HOSTS=${DJANGO_ALLOWED_HOSTS}
+      - DJANGO_DEBUG=${DJANGO_DEBUG}
+      - DJANGO_APP_PORT=${DJANGO_APP_PORT}
+      - DJANGO_FRONTEND_BUILD_DIR=${DJANGO_FRONTEND_BUILD_DIR}
+      - DJANGO_SUPERUSER_USERNAME=${DJANGO_SUPERUSER_USERNAME}
+      - DJANGO_SUPERUSER_EMAIL=${DJANGO_SUPERUSER_EMAIL}
+      - DJANGO_SUPERUSER_PASSWORD=${DJANGO_SUPERUSER_PASSWORD}
+      - OPENWEBUI_BASE_URL=${OPENWEBUI_BASE_URL}
+
+  # Open WebUI
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    volumes:
+      - open-webui:/app/backend/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+
+  pipelines:
+    image: ghcr.io/open-webui/pipelines:main
+    container_name: pipelines
+    volumes:
+      - pipelines:/app/pipelines
+    restart: always
+    environment:
+      - PIPELINES_API_KEY=${PIPELINES_API_KEY}
+
+  # Shared Resources
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PWD}
+    volumes:
+      - ./.db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "cat /initialised.txt && pg_isready -U $DB_USER"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    entrypoint: [ "/bin/bash", "-c","
+      docker-entrypoint.sh postgres &
+      mv -f /initialised.txt ./initialised.old.txt || true &&
+      until pg_isready -U $DB_USER; do sleep 3; done &&
+      psql -U $DB_USER -d postgres -c 'CREATE DATABASE $DB2_NAME;' || true &&
+      psql -U $DB_USER -d postgres -c 'CREATE DATABASE $DB_NAME;' || true &&
+      echo done > /initialised.txt &&
+      wait"
+    ]
+
+volumes:
+  open-webui: {}
+  pipelines: {}

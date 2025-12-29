@@ -1,0 +1,145 @@
+# Ruff Configuration
+# Python linting and formatting tool
+# Docs: https://docs.astral.sh/ruff/
+
+# Target Python 3.10+
+target-version = "py310"
+
+# Max line length (Black standard)
+line-length = 88
+
+# Enable auto-fixing
+fix = true
+
+[lint]
+# Enable comprehensive rule sets
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort (import sorting)
+    "N",      # pep8-naming
+    "D",      # pydocstyle (docstrings)
+    "UP",     # pyupgrade (modern Python syntax)
+    "YTT",    # flake8-2020
+    "ANN",    # flake8-annotations (type hints)
+    "S",      # flake8-bandit (security)
+    "BLE",    # flake8-blind-except
+    "FBT",    # flake8-boolean-trap
+    "B",      # flake8-bugbear
+    "A",      # flake8-builtins
+    "COM",    # flake8-commas
+    "C4",     # flake8-comprehensions
+    "DTZ",    # flake8-datetimez
+    "T10",    # flake8-debugger
+    "EM",     # flake8-errmsg
+    "ISC",    # flake8-implicit-str-concat
+    "ICN",    # flake8-import-conventions
+    "G",      # flake8-logging-format
+    "INP",    # flake8-no-pep420
+    "PIE",    # flake8-pie
+    "T20",    # flake8-print
+    "PYI",    # flake8-pyi
+    "PT",     # flake8-pytest-style
+    "Q",      # flake8-quotes
+    "RSE",    # flake8-raise
+    "RET",    # flake8-return
+    "SLF",    # flake8-self
+    "SIM",    # flake8-simplify
+    "TID",    # flake8-tidy-imports
+    "TCH",    # flake8-type-checking
+    "ARG",    # flake8-unused-arguments
+    "PTH",    # flake8-use-pathlib
+    "ERA",    # eradicate (commented-out code)
+    "PL",     # Pylint
+    "TRY",    # tryceratops
+    "RUF",    # Ruff-specific rules
+]
+
+# Rules to ignore (with justification)
+ignore = [
+    "D100",   # Missing docstring in public module (not always needed)
+    "D104",   # Missing docstring in public package (not always needed)
+    "ANN101", # Missing type annotation for self
+    "ANN102", # Missing type annotation for cls
+    "ANN401", # Dynamically typed expressions (Any) are allowed
+    "S101",   # Use of assert (needed for tests)
+    "T201",   # print() allowed (for scripts and debugging)
+    "FBT001", # Boolean positional arg (sometimes needed)
+    "FBT002", # Boolean default arg (sometimes needed)
+]
+
+# Allow auto-fixing for these rules
+fixable = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "UP",     # pyupgrade
+    "COM",    # commas
+    "C4",     # comprehensions
+    "ISC",    # implicit string concatenation
+    "PIE",    # flake8-pie
+    "Q",      # quotes
+    "RSE",    # raise
+    "RET",    # return
+    "SIM",    # simplify
+    "ERA",    # eradicate
+    "RUF",    # Ruff-specific
+]
+
+[lint.per-file-ignores]
+# Test files can have some relaxed rules
+"tests/**/*.py" = [
+    "S101",   # Use of assert
+    "PLR2004", # Magic value in comparison
+    "ANN",    # Type annotations not required in tests
+    "D",      # Docstrings not required in tests
+]
+
+# Scripts can print and have relaxed rules
+"scripts/**/*.py" = [
+    "T201",   # print() is fine in scripts
+    "S603",   # subprocess without shell=True is fine for scripts
+    "S607",   # Starting process with partial path (git) is fine
+    "BLE001", # blind except acceptable in utility scripts
+    "PLR0912", # many branches OK for main functions
+    "PLR0915", # many statements OK for main functions
+    "PLR2004", # magic values OK in scripts
+    "D212",   # multi-line docstring format
+    "D415",   # docstring punctuation
+    "TRY003", # long exception messages OK
+    "EM102",  # f-strings in exceptions OK
+    "SLF001", # private member access OK (for _make_request)
+    "ANN201", # return type annotations not required
+    "PLC0415", # import in function OK (traceback for errors)
+]
+
+# Modernization scripts have additional relaxed rules (analyzing legacy code)
+"scripts/modernize/*.py" = [
+    "PTH123", # open() is fine (Path.open() not always needed)
+    "PLR2004", # magic values OK (complexity thresholds, file sizes)
+    "S110",   # try-except-pass OK (graceful degradation for analysis)
+    "DTZ005", # datetime without tz OK for reports
+    "PLC0415", # import in function OK (conditional imports)
+    "PLW1510", # subprocess.run check parameter not always needed
+    "ANN201", # return type annotations not required
+    "E501",   # line length can exceed for report generation
+]
+
+[lint.pydocstyle]
+# Use Google-style docstrings
+convention = "google"
+
+[lint.isort]
+# isort configuration
+known-first-party = ["scripts", "src"]
+force-single-line = false
+lines-after-imports = 2
+
+[format]
+# Format configuration
+quote-style = "single"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "lf"

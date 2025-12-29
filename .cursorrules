@@ -1,0 +1,1264 @@
+# Cursor Agent Rules & Guidelines
+
+## Core Principles
+
+This project follows strict, opinionated development practices designed to ensure code quality, maintainability, and predictability.
+
+---
+
+## 🎯 Planning Workflow
+
+### CRITICAL: Plan-First Approach
+
+**PLAN**: When the user requests a "plan" or uses planning terminology:
+- **NEVER write or edit code** without explicit user approval
+- Provide a detailed, step-by-step implementation plan
+- Include file structure, component breakdown, and test strategy
+- Outline dependencies and potential challenges
+- **Call out any deviations from best practices** - if the user's request isn't following best practices, explain why and suggest alternatives
+- **Identify opportunities to reuse existing functionality** - always check for existing patterns, utilities, or components that can be leveraged
+- Wait for explicit "proceed", "implement", or "go ahead" before writing any code
+
+**Planning Keywords** (triggers plan-only mode):
+- "plan"
+- "design"
+- "architect"
+- "outline"
+- "propose"
+- "what would you do"
+- "how would you approach"
+
+When these keywords are used, respond with:
+1. **Objective Summary**: Restate the goal
+2. **Best Practices Analysis**:
+   - Evaluate if request follows industry best practices
+   - Flag any anti-patterns or potential issues
+   - Suggest better approaches if applicable
+3. **Reusability Check**:
+   - Identify existing code/patterns that can be reused
+   - Highlight opportunities to extract reusable components
+   - Prevent code duplication
+4. **Proposed Architecture**: High-level design decisions
+5. **File Structure**: Exact files to create/modify
+6. **Implementation Steps**: Ordered task breakdown
+7. **Test Strategy**: What tests will be written and why
+8. **Risks/Considerations**: Potential issues to address
+
+### Planning Documentation Requirements
+
+**ALL plans must be documented before implementation:**
+
+1. **Create Planning Document**
+   - Store in `docs/planning/features/FEAT-XXX-description.md`
+   - Use YAML frontmatter for metadata
+   - Include all sections from template
+   - Status must be approved before implementation
+
+2. **Planning Document Structure**
+```yaml
+---
+id: FEAT-XXX
+title: Feature Title
+status: draft | approved | in-progress | completed
+created: YYYY-MM-DD
+updated: YYYY-MM-DD
+author: [name]
+priority: high | medium | low
+---
+```
+
+3. **Required Sections**
+   - Overview: What is being built
+   - Business Value: Why it matters
+   - Requirements: Functional and non-functional
+   - Architecture: Design approach
+   - Implementation Tasks: Discrete work items
+   - Test Strategy: Testing approach
+   - Dependencies: What's needed first
+   - Risks & Mitigation: Potential issues
+
+---
+
+## 📋 GitHub Kanban Workflow
+
+### CRITICAL: Automated Ticket Management
+
+**ALL work must flow through GitHub Projects Kanban board:**
+
+### Kanban Board Columns
+
+1. **Backlog** - Agent-created tickets from approved plans
+2. **Ready** - User-approved work ready to start
+3. **In progress** - Active development
+4. **In review** - PR created, awaiting user review
+5. **In Testing** - User approved, needs thorough testing
+6. **Test Failed** - Tests failed, needs fixes
+7. **Done** - Completed and verified
+
+### Ticket Management Rules
+
+#### When Planning is Approved:
+1. Agent breaks plan into discrete tasks
+2. Agent creates GitHub Issues for each task using `add_to_project=True`
+3. Each issue includes:
+   - Clear title
+   - Description with acceptance criteria
+   - Link to planning document
+   - Appropriate labels
+   - Task checklist
+   - Dependencies listed
+4. Issues are **automatically added to Backlog** column via API
+5. Agent waits for user to move tickets to **Ready**
+
+**CRITICAL: Always use `add_to_project=True` when creating issues**
+
+```python
+# Correct way to create issues
+issue = api.create_issue(
+    title='[Feature] Task description',
+    body='...',
+    labels=['feature', 'priority:high'],
+    add_to_project=True,  # ← REQUIRED!
+    column_name='Backlog'  # Default, but can be specified
+)
+```
+
+#### When Starting Work (Ready → In Progress):
+1. Agent checks **Ready** column for work
+2. Agent analyzes dependencies (can this start?)
+3. If dependencies not met, skip and check next ticket
+4. Agent moves ticket to **In Progress**
+5. Agent updates ticket with comment: "Starting work"
+6. Agent creates feature branch
+7. Agent follows TDD workflow
+
+#### When Work Complete (In Progress → In Review):
+1. Agent runs ALL tests (must pass 100%)
+2. If tests fail, fix before proceeding
+3. Agent commits to feature branch
+4. Agent creates Pull Request linked to issue
+5. Agent moves ticket to **In Review**
+6. Agent adds PR link to ticket comments
+7. Agent waits for user approval
+
+#### Testing Phase (In Testing → Done/Test Failed):
+**PRIORITY: Check In Testing column FIRST before Ready**
+
+1. Agent monitors **In Testing** column
+2. Agent pulls latest changes
+3. Agent runs comprehensive test suite:
+   - All unit tests
+   - All integration tests
+   - E2E tests (if applicable)
+   - Manual test scenarios from ticket
+4. **IF ALL TESTS PASS:**
+   - Agent moves ticket to **Done**
+   - Agent adds test results as comment
+   - Agent closes issue
+5. **IF ANY TESTS FAIL:**
+   - Agent moves ticket to **Test Failed**
+   - Agent adds detailed failure report:
+     * What failed (specific tests)
+     * Error messages/stack traces
+     * Steps to reproduce
+     * Suggested fixes
+     * Environment details
+   - Agent does NOT close issue
+   - Agent waits for user review
+
+### Work Prioritization
+
+**Agent must follow this priority order:**
+
+1. **HIGHEST PRIORITY**: Tickets in **In Testing** column
+2. **SECOND PRIORITY**: Tickets in **Ready** column
+3. **Check dependencies**: Don't start ticket B if ticket A is needed first
+4. **Respect labels**: `priority:high` before `priority:medium` before `priority:low`
+
+### GitHub API Integration
+
+**Agents must use GitHub API for:**
+- Creating issues from planning docs
+- Moving tickets between columns
+- Adding comments to tickets
+- Linking PRs to issues
+- Updating issue status
+- Checking dependencies
+
+**API Configuration:**
+- Token stored in `.env` as `GITHUB_API_KEY`
+- Repository: `GITHUB_OWNER/GITHUB_REPO`
+- Project number: `GITHUB_PROJECT_NUMBER`
+
+### Ticket Labels
+
+**Standard labels to use:**
+- `feature` - New functionality
+- `bugfix` - Bug fixes
+- `testing` - Test-specific work
+- `documentation` - Documentation updates
+- `refactor` - Code improvements
+- `blocked` - Cannot proceed (list why in comments)
+- `priority:high` - Urgent work
+- `priority:medium` - Normal priority
+- `priority:low` - Can wait
+
+---
+
+## 🧪 Test-Driven Development (TDD)
+
+### Default Workflow: Red-Green-Refactor
+
+**ALL code changes MUST follow TDD principles:**
+
+1. **RED**: Write failing tests first
+   - Tests define the expected behavior
+   - Run tests to confirm they fail for the right reason
+
+2. **GREEN**: Write minimal code to pass tests
+   - Implement only what's needed to make tests pass
+   - Avoid premature optimization
+
+3. **REFACTOR**: Improve code quality
+   - Clean up implementation
+   - Ensure tests still pass
+   - Improve readability and maintainability
+
+### Test Requirements
+
+**Every feature/function MUST have:**
+- ✅ Unit tests covering happy paths
+- ✅ Unit tests covering edge cases
+- ✅ Unit tests covering error conditions
+- ✅ Integration tests (where applicable)
+- ✅ Clear, descriptive test names that explain behavior
+- ✅ Test coverage minimum: 90%
+
+**Test Structure:**
+```
+tests/
+├── unit/           # Unit tests (fast, isolated)
+├── integration/    # Integration tests (databases, APIs)
+└── e2e/           # End-to-end tests (full user flows)
+```
+
+**Test Naming Convention:**
+- Use descriptive names: `test_user_login_with_valid_credentials_succeeds`
+- Follow pattern: `test_<function>_<scenario>_<expected_result>`
+- Use Given-When-Then in test documentation
+
+---
+
+## 📁 File Structure
+
+### Project Types
+
+This project structure supports **two types of projects:**
+
+1. **Single-Tier Projects** - One codebase, one language
+2. **Multi-Tier Projects** - Frontend + Backend + Database (3-tier architecture)
+
+### Single-Tier Directory Layout
+
+Use this structure for simple applications, APIs, or single-purpose services:
+
+```
+project/
+├── src/                    # APPLICATION CODE - The software being built
+│   ├── core/              # Core business logic
+│   ├── services/          # External service integrations
+│   ├── models/            # Data models
+│   ├── utils/             # Utility functions
+│   ├── api/               # API endpoints/routes
+│   └── config/            # Configuration
+├── scripts/               # INFRASTRUCTURE CODE - Tooling and automation
+│   ├── github/            # GitHub API integrations (PR creation, issue management)
+│   ├── quality/           # Code quality checks (linting, dead code detection)
+│   └── utils/             # Shared utilities for scripts
+├── tests/                 # All tests
+│   ├── unit/
+│   ├── integration/
+│   └── e2e/
+├── docs/                  # Documentation
+│   ├── architecture/      # Architecture decision records
+│   ├── api/              # API documentation
+│   ├── guides/           # How-to guides
+│   └── planning/         # Planning documents
+│       └── features/     # Feature planning docs
+├── tmp/                   # Temporary files (gitignored)
+└── .cursorrules          # This file
+```
+
+### Multi-Tier Directory Layout (Monorepo)
+
+Use this structure for full-stack applications with frontend, backend, and database.
+
+**Default Stack:** Django (Python) + React (TypeScript) + PostgreSQL
+
+```
+project/
+├── frontend/              # React application (TypeScript)
+│   ├── src/              # Frontend source code
+│   │   ├── components/   # React components
+│   │   ├── pages/        # Page components
+│   │   ├── services/     # API clients (Django REST API)
+│   │   ├── hooks/        # Custom React hooks
+│   │   ├── utils/
+│   │   ├── styles/
+│   │   └── config/
+│   ├── tests/
+│   │   ├── unit/         # Component tests (Jest/Vitest)
+│   │   ├── integration/  # API integration tests
+│   │   └── e2e/          # E2E tests (feature-dependent)
+│   ├── Dockerfile
+│   ├── package.json
+│   └── README.md
+├── backend/               # Django application (Python)
+│   ├── src/              # Django project
+│   │   ├── apps/         # Django apps
+│   │   │   ├── accounts/ # User management
+│   │   │   ├── api/      # Django REST Framework
+│   │   │   └── core/     # Core app
+│   │   ├── config/       # Django settings (base, dev, prod)
+│   │   └── manage.py
+│   ├── tests/
+│   │   ├── unit/         # Django unit tests (pytest)
+│   │   ├── integration/  # API tests
+│   │   └── e2e/          # Backend E2E (feature-dependent)
+│   ├── requirements/     # Python dependencies (base, dev, prod)
+│   ├── Dockerfile
+│   ├── ruff.toml
+│   └── README.md
+├── data/                  # PostgreSQL Docker volume mount (gitignored)
+│   └── .gitkeep
+├── shared/                # Shared code (optional)
+│   ├── types/            # TypeScript types
+│   └── api-schema/       # API contracts (OpenAPI)
+├── scripts/               # INFRASTRUCTURE CODE
+│   ├── github/
+│   ├── quality/
+│   ├── docker/           # Docker helper scripts
+│   │   ├── migrate.sh    # Run Django migrations
+│   │   └── test_all.sh
+│   └── deploy/
+├── tests/                 # Cross-tier integration tests
+│   └── e2e/              # Full-stack E2E tests
+├── docs/                  # Documentation
+│   ├── architecture/
+│   ├── api/
+│   ├── planning/
+│   └── guides/
+│       ├── frontend-react.md
+│       ├── backend-django.md
+│       └── docker-guide.md
+├── docker-compose.yml     # Local development
+├── docker-compose.prod.yml
+├── tmp/                   # Temporary files (gitignored)
+└── .cursorrules          # This file
+```
+
+**Key Notes for Django Stack:**
+- No `database/` folder - Django handles migrations via `python manage.py migrate`
+- `data/` folder for PostgreSQL Docker volume (gitignored except `.gitkeep`)
+- Django apps under `backend/src/apps/`
+- Settings split: base, dev, prod configs
+- Django REST Framework for API endpoints
+
+### Code Organization Principles
+
+**Two distinct code categories:**
+
+1. **Application Code (`./src/` or `./frontend/`, `./backend/`)**
+   - The actual software/product being built
+   - Core business logic and user-facing functionality
+   - What gets deployed or distributed to end users
+   - Tested via `tests/unit/`, `tests/integration/`, `tests/e2e/`
+   - Examples: web apps, APIs, services, libraries
+
+2. **Infrastructure Code (`./scripts/`)**
+   - Support tools executed by agents or developers
+   - Project management utilities (GitHub API, PR creation)
+   - Quality checks (linting, pre-PR cleanup)
+   - Build, deployment, and automation scripts
+   - NOT part of the application deliverable
+
+**Key distinction:** Scripts support *how we build*, source code is *what we build*.
+
+### Multi-Tier Principles
+
+**When using multi-tier structure:**
+
+1. **Each Tier is Self-Contained**
+   - Own `src/`, `tests/`, `Dockerfile`, `README.md`
+   - Can be deployed independently
+   - Tier-specific dependencies and configs
+
+2. **Shared Tooling at Root**
+   - `scripts/` used by all tiers
+   - Root `.cursorrules` applies to all tiers
+   - Shared pre-commit hooks
+
+3. **Docker-First Development**
+   - Each tier has optimized Dockerfile
+   - `docker-compose.yml` for local development
+   - One command: `docker-compose up`
+   - Django migrations run automatically on backend start
+
+4. **Testing Strategy**
+   - **Always**: Unit tests for all new code (minimum 90% coverage)
+   - **Feature-Dependent**: E2E tests for user-facing features
+   - Each tier: own unit/integration tests
+   - Root `tests/e2e/`: cross-tier full-stack E2E tests
+   - All tier tests must pass before PR
+
+5. **Git Workflow**
+   - Feature branches can span multiple tiers
+   - Branch naming: `feature/user-auth` (spans tiers) or `feature/frontend-dark-mode` (single tier)
+   - Commits can be per-tier or combined for tightly coupled changes
+   - All affected tier tests must pass
+
+**See `docs/planning/features/FEAT-002-multi-tier-architecture.md` for complete details.**
+
+### File Naming Conventions
+
+- **Python**: `snake_case.py` (e.g., `user_service.py`)
+- **JavaScript/TypeScript**: `camelCase.js` or `PascalCase.tsx` for components
+- **Test files**: `test_<module>.py` or `<module>.test.ts`
+- **Config files**: Use standard names (`.env`, `config.yaml`)
+
+### Module Organization
+
+**Each module should have:**
+1. Clear single responsibility
+2. Minimal dependencies
+3. Explicit imports (no wildcard imports)
+4. Type hints/annotations (for typed languages)
+
+---
+
+## 🎨 Code Style
+
+### Python
+
+**Follow PEP 8 with these additions:**
+- Max line length: 88 characters (Black formatter standard)
+- Use type hints for all function signatures
+- Docstrings required for all public functions/classes (Google style)
+- Use f-strings for string formatting
+- Prefer composition over inheritance
+- Use dataclasses for data structures
+
+**Example:**
+```python
+from dataclasses import dataclass
+from typing import Optional
+
+@dataclass
+class User:
+    """Represents a user in the system.
+
+    Attributes:
+        id: Unique identifier for the user
+        username: User's chosen username
+        email: User's email address
+    """
+    id: int
+    username: str
+    email: str
+
+    def validate(self) -> bool:
+        """Validates user data.
+
+        Returns:
+            True if valid, False otherwise
+        """
+        return bool(self.username and self.email)
+```
+
+### JavaScript/TypeScript
+
+**Use modern ES6+ syntax:**
+- Prefer `const` over `let`, never use `var`
+- Use arrow functions for callbacks
+- Destructuring for object/array access
+- Template literals for string interpolation
+- Async/await over promise chains
+- TypeScript strict mode enabled
+
+**Example:**
+```typescript
+interface User {
+  id: number;
+  username: string;
+  email: string;
+}
+
+const validateUser = async (user: User): Promise<boolean> => {
+  return !!(user.username && user.email);
+};
+```
+
+### General Principles
+
+- **DRY**: Don't Repeat Yourself
+- **KISS**: Keep It Simple, Stupid
+- **YAGNI**: You Aren't Gonna Need It
+- **SOLID**: Single responsibility, Open-closed, Liskov substitution, Interface segregation, Dependency inversion
+- **Composition over Inheritance**
+- **Explicit over Implicit**
+- **Fail Fast**: Validate early, throw errors quickly
+
+---
+
+## 📝 Documentation Requirements
+
+### Code Documentation
+
+**Functions/Methods:**
+```python
+def calculate_total(items: list[Item], discount: float = 0.0) -> float:
+    """Calculates the total price with optional discount.
+
+    Args:
+        items: List of items to total
+        discount: Discount percentage (0.0 to 1.0)
+
+    Returns:
+        Total price after discount
+
+    Raises:
+        ValueError: If discount is negative or greater than 1.0
+
+    Example:
+        >>> items = [Item(price=10), Item(price=20)]
+        >>> calculate_total(items, 0.1)
+        27.0
+    """
+```
+
+**Architecture Decision Records (ADRs):**
+- Create ADR for significant design decisions
+- Store in `docs/architecture/ADR-NNN-title.md`
+- Use template: Context, Decision, Consequences
+
+---
+
+## 🔍 Code Review Checklist
+
+Before considering code complete:
+
+- [ ] All tests written and passing
+- [ ] Test coverage meets 90% minimum
+- [ ] Code follows style guidelines
+- [ ] Functions/classes have docstrings
+- [ ] No commented-out code
+- [ ] No TODO comments (create issues instead)
+- [ ] Error handling implemented
+- [ ] Edge cases considered
+- [ ] Performance implications considered
+- [ ] Security implications considered
+- [ ] Logging added where appropriate
+
+---
+
+## 🚨 Error Handling
+
+### Opinionated Error Strategy
+
+**Python:**
+- Use custom exception classes
+- Never use bare `except:`
+- Log errors with context
+- Fail fast, fail loud
+
+```python
+class UserValidationError(Exception):
+    """Raised when user validation fails."""
+    pass
+
+def create_user(data: dict) -> User:
+    if not data.get('email'):
+        raise UserValidationError("Email is required")
+    # ... implementation
+```
+
+**JavaScript/TypeScript:**
+- Use custom Error classes
+- Never swallow errors silently
+- Provide meaningful error messages
+
+```typescript
+class UserValidationError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'UserValidationError';
+  }
+}
+```
+
+---
+
+## 🔧 Development Workflow
+
+### Standard Implementation Process
+
+1. **Understand Requirements**
+   - Clarify ambiguities
+   - Identify acceptance criteria
+   - Check if request follows best practices
+
+2. **Create Plan** (if complex)
+   - Design architecture
+   - Evaluate against best practices
+   - Identify reusable components/patterns
+   - Identify files to modify
+   - Plan test strategy
+   - **Document in `docs/planning/features/`**
+
+3. **Create GitHub Tickets** (after plan approved)
+   - Break plan into discrete tasks
+   - Create GitHub Issues
+   - Add to Backlog column
+   - Wait for user to move to Ready
+
+### Temporary Files Management
+
+**CRITICAL: All temporary files must go in `./tmp/` directory**
+
+- ✅ **DO**: Create session summaries, scratch files, temporary scripts in `./tmp/`
+- ✅ **DO**: Use descriptive names: `./tmp/session-summary-YYYY-MM-DD.md`
+- ❌ **DON'T**: Create temporary `.md` files in project root
+- ❌ **DON'T**: Create temporary files outside project directory
+- ❌ **DON'T**: Commit temporary files (`.tmp/` is gitignored)
+
+**Examples:**
+- Session summaries → `./tmp/setup-summary.md`
+- Scratch calculations → `./tmp/calculations.txt`
+- Temporary scripts → `./tmp/test-script.py`
+- Debug output → `./tmp/debug-output.log`
+
+**Cleanup:**
+- Temporary files in `./tmp/` can be deleted after session
+- User can review and decide what to keep
+- `./tmp/` directory is gitignored
+
+4. **Setup Feature Branch**
+   - Check Ready column for work
+   - Verify dependencies are met
+   - Move ticket to In Progress
+   - Create feature branch from main
+   - Use descriptive branch name
+   - Switch to feature branch
+
+5. **Write Tests First** (TDD Red phase)
+   - Unit tests for new functionality
+   - Integration tests if needed
+   - Run tests to confirm they fail
+
+6. **Implement Minimum Code** (TDD Green phase)
+   - Make tests pass
+   - Keep it simple
+   - Reuse existing functionality where possible
+
+7. **Refactor** (TDD Refactor phase)
+   - Improve code quality
+   - Ensure tests still pass
+   - Extract reusable components
+
+8. **Document**
+   - Add/update docstrings
+   - Update README if needed
+
+9. **Pre-Commit Review**
+   - Self-review against checklist
+   - **RUN ALL TESTS** - must pass 100%
+   - Check coverage meets 90% minimum
+   - If tests fail, fix before committing
+
+10. **Commit Changes**
+    - Only commit if all tests pass
+    - Use conventional commit format
+    - Commit to feature branch
+
+11. **Create Pull Request**
+    - Create PR from feature branch to main
+    - Link PR to GitHub Issue
+    - Include summary of changes
+    - List tests added/modified
+    - Move ticket to In Review
+    - **WAIT for user approval**
+    - Do not merge until approved
+
+12. **Testing Phase** (when user moves to In Testing)
+    - Run comprehensive test suite
+    - Document results in ticket
+    - Move to Done (pass) or Test Failed (fail)
+
+---
+
+## 🎭 Agent Behavior Guidelines
+
+### When User Says "Plan"
+→ Provide detailed plan, DO NOT write code
+→ Include best practices analysis
+→ Identify reusable components
+→ Flag any anti-patterns
+→ **Create planning document in `docs/planning/features/`**
+
+### When User Approves Plan
+→ Create GitHub Issues from planning document
+→ Add all issues to Backlog column
+→ Wait for user to move tickets to Ready
+
+### When User Says "Implement" or "Proceed"
+→ **FIRST: Check current branch with `git branch`**
+→ **If on main: Create feature branch IMMEDIATELY**
+→ Check Ready column for available work
+→ Follow TDD workflow:
+1. **Verify not on main branch** (critical!)
+2. Check dependencies
+3. Move ticket to In Progress
+4. Create/verify feature branch exists
+5. Write tests (RED)
+6. Implement code (GREEN)
+7. Refactor if needed (REFACTOR)
+8. Run all tests - must pass before commit
+9. Commit to feature branch (NOT main!)
+10. Push feature branch to origin
+11. Create PR using create_pr.py and link to issue
+12. Move ticket to In Review
+13. Wait for user approval
+
+### When Monitoring In Testing Column (PRIORITY)
+→ Check In Testing BEFORE checking Ready
+→ Pull latest changes
+→ Run comprehensive test suite
+→ Document results in ticket
+→ Move to Done (if pass) or Test Failed (if fail)
+
+### When User Requests a Feature
+→ Ask: "Would you like me to create a plan first, or proceed with implementation?"
+
+### When User Requests Something Against Best Practices
+→ Explain the issue during planning
+→ Suggest better alternatives
+→ Explain trade-offs
+→ Wait for user decision
+
+### Default Assumption
+→ If unclear, create a plan and wait for approval
+→ Always evaluate for best practices
+→ Always look for reusability opportunities
+→ Always document plans before coding
+
+### Git Workflow Guardrails
+→ **NEVER EVER commit directly to main/master** - Protected branches will reject this!
+→ **ALWAYS create feature branch BEFORE making changes**
+→ If on main with changes: `git checkout -b feature/name` BEFORE committing
+→ ALWAYS work in feature branches
+→ NEVER commit if tests are failing
+→ NEVER merge PRs without user approval
+→ ALWAYS link PRs to GitHub Issues
+→ ALWAYS push feature branches, not main
+
+### GitHub Integration Guardrails
+→ ALWAYS check In Testing column first
+→ ALWAYS move tickets through proper columns
+→ ALWAYS add detailed comments when changing status
+→ ALWAYS link issues to PRs
+→ ALWAYS document test results in tickets
+
+### Python Virtual Environment Guardrails
+→ ALWAYS activate .venv before running Python commands
+→ Check if .venv exists at project root
+→ For terminal commands, activate with: `source .venv/bin/activate && <command>`
+→ For Python scripts: `source .venv/bin/activate && python script.py`
+→ For pip installs: `source .venv/bin/activate && pip install <package>`
+→ Never run Python commands without .venv activation
+
+---
+
+## 🛠️ Tools & Standards
+
+### Python Projects
+- **Linter**: Ruff (configured via ruff.toml)
+- **Formatter**: Ruff format
+- **Type Checker**: mypy (optional, Ruff provides type checking)
+- **Testing**: pytest
+- **Coverage**: pytest-cov
+- **Security**: Bandit (via pre-commit)
+- **Dead Code Detection**: Vulture (in pre-PR checks)
+- **Environment**: Virtual environment (venv) - ALWAYS activate before commands
+
+### Python Virtual Environment
+- **Location**: `.venv/` at project root
+- **Activation**: `source .venv/bin/activate` (Linux/Mac) or `.venv\Scripts\activate` (Windows)
+- **Requirement**: MUST be activated for all Python operations
+- **Terminal Commands**: Prefix with venv activation: `source .venv/bin/activate && python script.py`
+
+### JavaScript/TypeScript Projects
+- **Linter**: ESLint (configured via .eslintrc.js)
+- **Style Guide**: Airbnb (industry standard)
+- **TypeScript**: Strict mode with comprehensive rules
+- **Testing**: Jest or Vitest
+- **Coverage**: Built-in coverage tools
+- **Node Version**: 20+ (managed via nvm)
+
+### CSS/SCSS Projects
+- **Linter**: Stylelint (configured via .stylelintrc.json)
+- **Standards**: stylelint-config-standard + SCSS extension
+- **Formatting**: 2-space indentation, single quotes
+- **Best Practices**: No ID selectors, max 4 nesting levels
+
+---
+
+## 🎯 Code Quality & Linting
+
+### Overview
+
+This project enforces strict code quality standards through automated linting and formatting:
+- **Pre-commit hooks**: Auto-fix on every commit (max 3 attempts)
+- **Pre-PR cleanup**: Comprehensive quality check before Pull Requests
+- **Continuous enforcement**: Code quality maintained automatically
+
+### Linting Tools Configuration
+
+**Python (Ruff)**
+- Configuration: `ruff.toml`
+- Line length: 88 characters (Black standard)
+- Quote style: Single quotes
+- Rules: 40+ rule sets enabled (pycodestyle, Pyflakes, isort, pydocstyle, type hints, security, etc.)
+- Auto-fix: Enabled for safe transformations
+- Command: `ruff check . --fix`
+
+**JavaScript/TypeScript (ESLint)**
+- Configuration: `.eslintrc.js`
+- Style guide: Airbnb base
+- Unused imports: Automatically detected and removed
+- Import ordering: Automatic sorting and grouping
+- Max line length: 100 characters
+- Command: `npx eslint . --fix`
+
+**CSS/SCSS (Stylelint)**
+- Configuration: `.stylelintrc.json`
+- Standards: stylelint-config-standard + SCSS
+- Formatting: Consistent spacing, quotes, colors
+- Restrictions: No ID selectors, max 4 nesting levels
+- Command: `npx stylelint "**/*.{css,scss}" --fix`
+
+### Pre-commit Hooks (Automatic)
+
+**Installed via pre-commit framework**
+- Location: `.pre-commit-config.yaml`
+- Runs automatically on `git commit`
+- Max 3 auto-fix attempts per commit
+- Blocks commit if unfixable errors or tests fail
+
+**Hooks include:**
+1. **Ruff**: Python linting + formatting
+2. **ESLint**: JS/TS linting (auto-fix)
+3. **Stylelint**: CSS/SCSS linting (auto-fix)
+4. **File checks**: Trailing whitespace, EOF, line endings (LF)
+5. **Syntax validation**: YAML, JSON, TOML
+6. **Security**: Bandit for Python vulnerabilities
+7. **Safety**: Large file detection, merge conflict detection
+
+**Auto-fix loop behavior:**
+1. Run all hooks on staged files
+2. If issues found, apply auto-fixes
+3. Re-stage fixed files automatically
+4. Re-run hooks to verify fixes
+5. Repeat up to 3 times
+6. Run tests after all fixes
+7. Block commit if tests fail or unfixable errors remain
+
+**Bypass (use sparingly):**
+```bash
+SKIP=ruff,eslint git commit -m "message"  # Skip specific hooks
+git commit --no-verify -m "message"        # Skip all hooks (NOT RECOMMENDED)
+```
+
+### Pre-PR Quality Check (Manual)
+
+**Run before creating Pull Request:**
+```bash
+python scripts/quality/pre_pr_check.py
+```
+
+**Performs comprehensive checks:**
+1. **Vulture**: Detect unused Python code (80% confidence)
+2. **Ruff**: Auto-fix Python (including unsafe fixes)
+3. **ESLint**: Auto-fix JS/TS issues
+4. **Stylelint**: Auto-fix CSS/SCSS issues
+5. **Test Suite**: Verify fixes didn't break functionality
+6. **Summary Report**: Clear output of all changes
+
+**Exit codes:**
+- `0`: All passed or warnings only
+- `1`: Tests failed after fixes (blocks PR)
+
+**When to run:**
+- Before creating any Pull Request
+- After major refactoring
+- When seeing linter warnings accumulate
+- Before merging feature branches
+
+### Agent Workflow with Linting
+
+**On commit (automatic):**
+1. Stage files with `git add`
+2. Run `git commit`
+3. Pre-commit hooks run automatically
+4. Auto-fixes applied (up to 3 attempts)
+5. Tests run after fixes
+6. Commit succeeds or blocks with clear errors
+
+**Before PR creation (manual):**
+1. Run `python scripts/quality/pre_pr_check.py`
+2. Review unused code warnings (vulture)
+3. Verify all auto-fixes applied correctly
+4. Ensure all tests pass
+5. Create PR using `scripts/github/create_pr.py`
+
+**If commit blocked:**
+1. Read error messages carefully
+2. Fix issues that can't be auto-fixed
+3. Re-stage files: `git add .`
+4. Try commit again
+5. Repeat until successful or max 3 attempts reached
+
+**If tests fail after auto-fix:**
+1. Review what the linters changed
+2. Fix broken tests or revert problematic changes
+3. Ensure code logic is correct
+4. Re-run tests manually: `pytest tests/` or `npm test`
+5. Commit again once tests pass
+
+### Code Quality Standards
+
+**All code must:**
+- ✅ Pass all linter checks (Ruff/ESLint/Stylelint)
+- ✅ Have no unused imports, variables, or functions
+- ✅ Follow consistent formatting (automated)
+- ✅ Use proper naming conventions
+- ✅ Have no security vulnerabilities (Bandit)
+- ✅ Pass all tests after any changes
+- ✅ Use LF line endings (enforced)
+- ✅ Have no trailing whitespace
+- ✅ End with single newline
+
+**Linting is non-negotiable:**
+- Cannot commit with linter errors
+- Cannot merge PR with linter warnings
+- Auto-fix handles 90%+ of issues
+- Manual fixes required for architectural issues
+
+**Best practices enforced:**
+- Python: Type hints, docstrings, imports sorted
+- JS/TS: Unused code removed, imports organized
+- CSS/SCSS: No IDs, limited nesting, consistent format
+- All: Line length limits, consistent quotes, proper spacing
+
+### Version Control
+
+**CRITICAL Git Workflow Rules:**
+
+⚠️ **BREAKING THESE RULES WILL CAUSE FAILURES WITH PROTECTED BRANCHES** ⚠️
+
+1. **Feature Branch Workflow (MANDATORY - NO EXCEPTIONS)**
+   - **NEVER EVER commit directly to main/master**
+   - **ALWAYS create a feature branch BEFORE making ANY changes**
+   - If you realize you've made changes on main, CREATE BRANCH IMMEDIATELY before committing
+   - Branch naming: `feature/<description>`, `bugfix/<description>`, `hotfix/<description>`
+   - Example: `feature/user-authentication`, `bugfix/login-validation`
+
+2. **Correct Workflow When You Have Uncommitted Changes:**
+   ```bash
+   # WRONG - Don't do this!
+   git add .
+   git commit -m "message"
+   git push origin main  # ❌ FAILS with protected branch!
+
+   # RIGHT - Do this instead:
+   git checkout -b feature/description  # Create branch WITH your changes
+   git add .
+   git commit -m "message"
+   git push origin feature/description  # ✅ Push feature branch
+   python scripts/github/create_pr.py "title" "description" main
+   ```
+
+3. **Line Endings (IMPORTANT)**
+   - Always use LF (Unix-style) line endings
+   - Configured via `.gitattributes`
+   - Shell scripts require LF to work properly
+   - Python PEP 8 standard recommends LF
+
+4. **Pre-Commit Requirements**
+   - **ALL tests MUST pass before committing**
+   - Run full test suite before any commit
+   - If any test fails, DO NOT commit
+   - Fix failing tests before proceeding
+
+5. **Commit Standards**
+   - Follow conventional commits format
+   - Format: `type(scope): description`
+   - Types: feat, fix, docs, test, refactor, chore
+   - Example: `feat(auth): add user login endpoint`
+
+6. **Pull Request Workflow (MANDATORY)**
+   - After feature branch work is complete and committed
+   - Push feature branch to origin
+   - Create Pull Request using `scripts/github/create_pr.py`
+   - **WAIT for user approval before merging**
+   - Never auto-merge or force merge
+   - Include PR description with:
+     - Summary of changes
+     - Tests added/modified
+     - Breaking changes (if any)
+
+7. **Agent Behavior for Git Operations**
+   - ALWAYS check current branch before making changes
+   - If on main/master, CREATE FEATURE BRANCH IMMEDIATELY
+   - Never commit to main/master under any circumstances
+   - Run tests before committing
+   - Create PR and pause for user approval
+   - Provide PR summary for user review
+
+8. **Why This Matters**
+   - Protected branches will REJECT direct pushes
+   - Code review process requires PRs
+   - History stays clean with feature branches
+   - Easy to revert bad changes
+   - Team workflow depends on this
+
+---
+
+## 🔧 Legacy Code Modernization
+
+### When Working on Legacy Code
+
+**Legacy code** = Code without tests, unclear architecture, accumulated technical debt.
+
+**Different workflow than greenfield TDD:**
+
+1. **Import Template First**
+   ```bash
+   /path/to/cursor-test/scripts/modernize/import_template.sh
+   ```
+   - Non-destructive import of scaffolding
+   - Analyzes project structure
+   - Sets up tooling (linters, tests, pre-commit)
+
+2. **Assess Before Changing**
+   ```bash
+   python scripts/modernize/assess_codebase.py
+   ```
+   - Generates comprehensive assessment
+   - Identifies risks and opportunities
+   - Output: `docs/modernization/assessment.md`
+
+3. **Characterization Tests First**
+   - Write tests that prove CURRENT behavior
+   - Lock down existing functionality
+   - Create safety net for refactoring
+   - **Critical**: Test actual behavior (bugs and all), not ideal behavior
+
+4. **Plan Refactoring**
+   - Create discrete, safe tasks
+   - Document in `docs/modernization/refactor-plan.md`
+   - Create GitHub Issues:
+   ```bash
+   python scripts/modernize/create_refactor_issues.py docs/modernization/refactor-plan.md
+   ```
+
+5. **Refactor Safely**
+   - Small, incremental changes
+   - Characterization tests must always pass
+   - No behavior changes during refactoring
+   - Document bugs, fix in separate PRs
+
+### Characterization Testing Workflow
+
+**Goal**: Document what code ACTUALLY does (not what it should do).
+
+**Process**:
+1. Identify seam (place to insert test)
+2. Write test with dummy assertion: `assert result == ???`
+3. Run test (it fails, shows actual output)
+4. Update test to expect actual output
+5. Test passes (behavior locked down)
+6. Repeat for all critical paths and edge cases
+
+**Example**:
+```python
+def test_calculate_discount_current_behavior():
+    """
+    CHARACTERIZATION TEST - Documents existing behavior.
+
+    Current: Rounds mid-calculation (causes precision issues)
+    TODO: Fix in refactor phase (see issue #42)
+    """
+    result = calculate_discount(amount=10.00, percent=33)
+
+    # Test CURRENT behavior (even though it's wrong)
+    assert result == 6.71  # Bug: should be 6.70
+```
+
+### Agent Checklist Before Refactoring
+
+**Before Starting**:
+- [ ] Characterization tests exist (>80% coverage of code being refactored)
+- [ ] All tests currently passing
+- [ ] Feature branch created
+- [ ] Refactor plan task reviewed
+
+**During Refactoring**:
+- [ ] Make one small change at a time
+- [ ] Run characterization tests after each change
+- [ ] Commit frequently (every logical step)
+- [ ] Document any surprising discoveries
+
+**After Refactoring**:
+- [ ] All characterization tests still pass
+- [ ] New unit tests added (if new code/functions)
+- [ ] Linters pass
+- [ ] Manual smoke test of refactored feature
+- [ ] No behavior change verified
+
+### Agent Behavior for Legacy Code
+
+**ALWAYS:**
+- ✅ Check characterization tests exist before refactoring
+- ✅ Run tests after every change
+- ✅ Make small, incremental changes
+- ✅ Commit frequently
+- ✅ Document unexpected behavior
+- ✅ Verify no behavior change
+
+**NEVER:**
+- ❌ Refactor without characterization tests
+- ❌ Make multiple changes in one commit
+- ❌ Fix bugs during refactoring (separate PR)
+- ❌ Change behavior "because it's wrong" (document, fix later)
+- ❌ Skip manual smoke testing
+- ❌ Ignore test failures ("I'll fix later")
+
+### Refactoring Patterns
+
+**Extract Method**:
+```python
+# Before: Complex function
+def process_order(order_data):
+    # 50 lines of mixed logic
+    pass
+
+# After: Extracted methods
+def process_order(order_data):
+    validated = validate_order(order_data)
+    payment = process_payment(validated)
+    update_inventory(validated)
+    send_confirmation(validated)
+    return payment
+```
+
+**Extract Service**:
+```python
+# Before: Fat view/controller
+def checkout_view(request):
+    # Business logic mixed with presentation
+    pass
+
+# After: Thin controller, fat service
+def checkout_view(request):
+    service = CheckoutService()
+    result = service.process_checkout(request.data)
+    return render(result)
+```
+
+**Split Monolithic File**:
+```python
+# Before: models.py (1,200 lines)
+# All models in one file
+
+# After: models/ directory
+models/
+  __init__.py  # Re-exports all
+  user.py      # User models
+  product.py   # Product models
+  order.py     # Order models
+```
+
+### Documentation Structure
+
+**Assessment**: `docs/modernization/assessment.md`
+- Codebase analysis
+- Quality metrics
+- Risk identification
+- Refactor opportunities
+
+**Characterization Tests**: `docs/modernization/characterization-tests.md`
+- Track test coverage progress
+- Document quirks and bugs found
+- Link to actual test files
+
+**Refactor Plan**: `docs/modernization/refactor-plan.md`
+- Discrete tasks with priorities
+- Acceptance criteria
+- Dependencies
+- Risk mitigation
+
+### Complete Workflow
+
+See `docs/planning/features/FEAT-003-legacy-code-modernization.md` for complete details.
+
+---
+
+## 📚 Remember
+
+> "Any fool can write code that a computer can understand. Good programmers write code that humans can understand." — Martin Fowler
+
+> "Make it work, make it right, make it fast." — Kent Beck
+
+> "Tests are the programmer's stone, transmuting fear into boredom." — Kent Beck
+
+---
+
+## Quick Reference
+
+**Planning Mode Keywords**: plan, design, architect, outline, propose
+**Action Mode Keywords**: implement, proceed, go ahead, create, build
+**Default Behavior**: Ask for clarification, prefer planning first
+**TDD Always**: Red → Green → Refactor
+**Test Coverage**: Minimum 90%
+**Documentation**: Required for all public APIs
+
+### Critical Rules Summary
+
+✅ **DO:**
+- Create plans in `docs/planning/features/` directory
+- Create GitHub tickets from approved plans
+- Check In Testing column FIRST (highest priority)
+- Create plans that evaluate best practices
+- Identify reusable code and patterns
+- Work in feature branches
+- Run all tests before committing
+- Create PRs and wait for user approval
+- Write tests before implementation
+- Follow TDD: Red → Green → Refactor
+- Move tickets through proper Kanban columns
+- Link PRs to GitHub Issues
+- Document test results in tickets
+
+❌ **DON'T:**
+- **Commit directly to main/master** (will fail with protected branches!)
+- **Make changes while on main branch**
+- Commit if any tests are failing
+- Merge PRs without user approval
+- Write code during planning phase
+- Ignore best practices without discussion
+- Duplicate code when reusable options exist
+- Skip the In Testing column
+- Start work without checking dependencies
+- Move tickets to Ready (user does this)
+- Run Python commands without activating venv
+- **Push to main branch** (always push feature branches!)

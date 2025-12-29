@@ -1,0 +1,77 @@
+{
+  "id": "unit2_conversation2",
+  "model": "slc-resident",
+  "avatar_id": "10",
+  "max_turns": 14,
+  "scene_id": "unit2_conversation2",
+  "unit": "Talking about food and drink",
+  "intro": "You are assisting Mr Peters with his afternoon tea. He is initially reluctant to drink and has specific preferences for how he likes his tea. Use empathetic communication to encourage him to drink while ensuring his preferences are respected and any safety concerns are addressed.",
+  "description_html": "<p>In this scenario, you will practice respecting resident preferences while encouraging adequate fluid intake. Mr Peters has very specific preferences about how he likes his tea prepared.</p><p><strong>Learning objectives:</strong></p><ul><li>Encourage hydration with reluctant residents</li><li>Respect individual preferences</li><li>Prepare drinks to specific requirements</li><li>Check for dietary restrictions</li><li>Assess independence levels</li></ul>",
+  "youtube_video_id": "",
+  "resident": {
+    "name": "Mr Peters",
+    "initial_state": "reluctant_to_drink",
+    "goals": [
+      "express reluctance to drink",
+      "agree to tea after encouragement",
+      "state clear preferences",
+      "assert dislike of weak/milky tea",
+      "confirm ability to stir independently",
+      "decline extra food politely"
+    ],
+    "must_disclose": [
+      "doesn't feel like drinking initially",
+      "prefers strong tea",
+      "wants only a dash of milk",
+      "wants half a teaspoon of sugar",
+      "can stir tea independently",
+      "does not want a biscuit"
+    ],
+    "refusals": [
+      "will not accept weak tea",
+      "will not accept too much milk",
+      "will not accept too much sugar",
+      "will not accept food if not wanted"
+    ],
+    "safety": {
+      "contraindications_to_check": [
+        "fluid_restriction",
+        "diabetes_or_sugar_restriction",
+        "dysphagia",
+        "lactose_intolerance"
+      ]
+    },
+    "resolution_trigger": "carer_confirms_all_preferences",
+    "end_conditions": {
+      "required_slots": [
+        "drink_choice_confirmed",
+        "strength_confirmed",
+        "milk_preference_confirmed",
+        "sugar_preference_confirmed",
+        "independence_checked"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Bring tea trolley",
+      "prompt": "You bring the tea trolley over to Mr Peters."
+    },
+    {
+      "title": "Prepare strong tea",
+      "prompt": "You prepare a strong cup of tea by leaving the tea bag in for longer."
+    },
+    {
+      "title": "Add milk",
+      "prompt": "You add just a dash of milk to the tea, being careful not to add too much."
+    },
+    {
+      "title": "Add sugar",
+      "prompt": "You add half a teaspoon of sugar to the tea."
+    },
+    {
+      "title": "Place teaspoon",
+      "prompt": "You place a teaspoon in the cup and position the tea within Mr Peters' reach so he can stir it himself."
+    }
+  ]
+}

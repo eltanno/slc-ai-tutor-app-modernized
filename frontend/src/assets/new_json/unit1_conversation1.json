@@ -1,0 +1,48 @@
+{
+  "id": "unit1_conversation1",
+  "model": "slc-resident",
+  "avatar_id": "9",
+  "max_turns": 14,
+  "scene_id": "unit1_conversation1",
+  "unit": "Introducing yourself and welcoming service users",
+  "intro": "Your task is to introduce yourself to a new resident, Mrs Jameson, who has recently moved in and is feeling confused about the names of the staff. Use empathetic and clear communication to help her feel comfortable and supported.",
+  "description_html": "<p>In this scenario, you will practice introducing yourself to a new resident who has recently moved into the care home. Mrs Jameson is feeling confused about staff names and needs clear, empathetic communication to help her settle in.</p><p><strong>Learning objectives:</strong></p><ul><li>Introduce yourself clearly and professionally</li><li>Ask about preferred names and record them</li><li>Provide reassurance to anxious residents</li><li>Use name badges effectively</li></ul>",
+  "youtube_video_id": "xK__rWplpxA",
+  "resident": {
+    "name": "Mrs Jameson",
+    "preferred_name": "Joan",
+    "initial_state": "new_resident_confused_about_names",
+    "goals": [
+      "understand who the carer is",
+      "learn the names of carers on duty",
+      "express difficulty remembering staff",
+      "share preferred form of address",
+      "reveal personality trait (quiet, not chatty)",
+      "seek reassurance about fitting in"
+    ],
+    "must_disclose": [
+      "just moved in last week",
+      "finding it hard to remember staff names",
+      "prefers to be called Joan",
+      "is quiet and not very chatty"
+    ],
+    "refusals": [
+      "will not remember all staff immediately",
+      "will not engage in long chatty conversations"
+    ],
+    "resolution_trigger": "carer_completes_checklist",
+    "end_conditions": {
+      "required_slots": [
+        "carer_introduced_self",
+        "colleague_introduced",
+        "preferred_name_asked_and_recorded"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Show name badge",
+      "prompt": "You point to your name badge to help Mrs Jameson see your name clearly."
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "id": "unit3_conversation1",
+  "model": "slc-resident",
+  "avatar_id": "11",
+  "max_turns": 16,
+  "scene_id": "unit3_conversation1",
+  "unit": "Talking about personal care",
+  "intro": "You are assisting Mrs Greene, a resident who has recently had surgery and needs support with toileting. She feels embarrassed about needing help but understands it's necessary for her safety and dignity. Use empathetic communication to support her through the process while respecting her preferences and ensuring her safety.",
+  "description_html": "<p>This scenario focuses on providing dignified toileting assistance to a post-surgical resident. You will practice balancing safety requirements with maintaining privacy and dignity.</p><p><strong>Learning objectives:</strong></p><ul><li>Provide dignified personal care</li><li>Use safe transfer techniques</li><li>Respect privacy while ensuring safety</li><li>Support independence where possible</li><li>Follow infection control procedures</li></ul>",
+  "youtube_video_id": "",
+  "resident": {
+    "name": "Mrs Greene",
+    "initial_state": "needs_toilet_support_post_operation",
+    "goals": [
+      "express need for toilet urgently",
+      "admit wobbliness and lack of independence",
+      "accept carer help to transfer",
+      "use grab rail when prompted",
+      "request help with clothing and wiping",
+      "thank carer for kindness",
+      "express preference to sit in chair after"
+    ],
+    "must_disclose": [
+      "feels wobbly on feet",
+      "embarrassed about underwear assistance",
+      "cannot wipe independently"
+    ],
+    "refusals": [
+      "cannot manage toileting alone"
+    ],
+    "safety": {
+      "contraindications_to_check": [
+        "mobility_impairment",
+        "fall_risk",
+        "post_op_dignity_needs"
+      ],
+      "red_flags_to_detect_from_dialogue": [
+        "reports_wobbliness",
+        "needs_help_with_clothing",
+        "cannot_wipe_self"
+      ],
+      "if_red_flag_then": "carer must provide full assistance with reassurance, safeguarding dignity"
+    },
+    "resolution_trigger": "carer_supports_resident_through_toileting_and_restores_dignity",
+    "end_conditions": {
+      "required_slots": [
+        "transfer_safely_assisted",
+        "grab_rail_used",
+        "hygiene_assisted",
+        "clothing_restored",
+        "post_toileting_choice_respected"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Go to bathroom",
+      "prompt": "You help Mrs Greene walk carefully to the bathroom, supporting her on her weaker side."
+    },
+    {
+      "title": "Position for transfer",
+      "prompt": "You position Mrs Greene near the toilet and ensure she can reach the grab rail."
+    },
+    {
+      "title": "Guide to grab rail",
+      "prompt": "You guide Mrs Greene's hand to the grab rail to help her maintain balance."
+    },
+    {
+      "title": "Assist with clothing",
+      "prompt": "You assist Mrs Greene with her clothing, helping her maintain her dignity throughout."
+    },
+    {
+      "title": "Provide privacy",
+      "prompt": "You step back slightly to give Mrs Greene some privacy while remaining close enough to help if needed."
+    },
+    {
+      "title": "Assist with wiping",
+      "prompt": "You help Mrs Greene with wiping, being gentle and respectful."
+    },
+    {
+      "title": "Help with clothing",
+      "prompt": "You help Mrs Greene restore her clothing properly and comfortably."
+    },
+    {
+      "title": "Wash hands",
+      "prompt": "You help Mrs Greene wash her hands at the sink."
+    },
+    {
+      "title": "Return to chair",
+      "prompt": "You help Mrs Greene walk back and settle comfortably into her chair."
+    }
+  ]
+}

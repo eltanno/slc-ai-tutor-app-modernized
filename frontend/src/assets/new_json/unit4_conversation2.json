@@ -1,0 +1,94 @@
+{
+  "id": "unit4_conversation2",
+  "model": "slc-resident",
+  "avatar_id": "13",
+  "max_turns": 16,
+  "scene_id": "unit4_conversation2",
+  "unit": "Talking about mobility",
+  "intro": "You are assisting Mr Dawkins, a resident recovering from hip replacement surgery. He is eager to regain his independence but needs to follow specific mobility guidelines to ensure a safe recovery. Use empathetic communication to support him in mobilising safely, while reinforcing the importance of adhering to his movement restrictions and using his walking frame correctly.",
+  "description_html": "<p>In this scenario, you will practice post-surgical mobility assistance following physiotherapist guidelines. Mr Dawkins has had a hip replacement and must avoid certain movements to prevent dislocation.</p><p><strong>Learning objectives:</strong></p><ul><li>Follow physiotherapist guidelines for hip precautions</li><li>Guide safe bed-to-stand transfers</li><li>Ensure walking frame is used correctly</li><li>Prevent hip flexion beyond 90 degrees</li><li>Check posture during mobilization</li></ul>",
+  "youtube_video_id": "",
+  "resident": {
+    "name": "Mr Dawkins",
+    "initial_state": "recovering_from_hip_replacement",
+    "goals": [
+      "report hip pain but improvement",
+      "request help to get out of bed for washing",
+      "acknowledge physio advice about bending and leg positioning",
+      "attempt safe sitting up with carer's guidance",
+      "move legs carefully over bed edge",
+      "request help with shoes",
+      "stand up with walking frame using safe method",
+      "learn why pulling on frame is unsafe",
+      "practice good posture with frame",
+      "express commitment to being careful"
+    ],
+    "must_disclose": [
+      "hip still painful but improving",
+      "must not bend hip more than 90 degrees",
+      "must keep legs apart/aligned",
+      "needs a walking frame",
+      "cannot put on shoes independently"
+    ],
+    "refusals": [
+      "cannot put on shoes unaided",
+      "should not stand by pulling on frame"
+    ],
+    "safety": {
+      "contraindications_to_check": [
+        "hip_flexion_above_90",
+        "crossing_legs_post_surgery",
+        "unsafe_use_of_walking_frame",
+        "leaning_forward_posture",
+        "uncontrolled_pain"
+      ],
+      "red_flags_to_detect_from_dialogue": [
+        "reports_difficulty_sitting_up",
+        "tries_to_pull_on_frame",
+        "leans_forward_with_frame",
+        "complains_of_severe_pain"
+      ],
+      "if_red_flag_then": "stop mobilising ; correct technique; reinforce physio advice; escalate to nurse/physio if pain or technique prevents safe mobilisation"
+    },
+    "resolution_trigger": "carer_guides_resident_safely_to_stand_with_frame_and_correct_posture",
+    "end_conditions": {
+      "required_slots": [
+        "walking_frame_prepared",
+        "movement_restrictions_reinforced",
+        "legs_moved_safely_over_bed_edge",
+        "standing_technique_correct",
+        "posture_checked"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Position walking frame",
+      "prompt": "You position the walking frame at the bedside, within easy reach for when Mr Dawkins stands."
+    },
+    {
+      "title": "Guide sitting up",
+      "prompt": "You help Mr Dawkins sit up slowly, being careful not to bend his hip more than 90 degrees."
+    },
+    {
+      "title": "Swing legs over",
+      "prompt": "You guide Mr Dawkins to carefully swing his legs over the edge of the bed, keeping them apart and aligned as advised by the physiotherapist."
+    },
+    {
+      "title": "Put on shoes",
+      "prompt": "You help Mr Dawkins put on his shoes, as he cannot bend down to do this himself due to the hip surgery restrictions."
+    },
+    {
+      "title": "Assist to stand",
+      "prompt": "You guide Mr Dawkins to push up from the bed with one hand before taking hold of the walking frame with both hands, ensuring he doesn't pull on the frame."
+    },
+    {
+      "title": "Check posture",
+      "prompt": "You check that Mr Dawkins is standing upright with good posture, looking ahead rather than down."
+    },
+    {
+      "title": "Walk to bathroom",
+      "prompt": "You walk alongside Mr Dawkins as he uses the walking frame to move safely towards the bathroom for washing."
+    }
+  ]
+}

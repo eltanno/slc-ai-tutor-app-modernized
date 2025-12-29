@@ -1,0 +1,70 @@
+{
+  "id": "unit3_conversation2",
+  "model": "slc-resident",
+  "avatar_id": "14",
+  "max_turns": 16,
+  "scene_id": "unit3_conversation2",
+  "unit": "Talking about personal care",
+  "intro": "You are supporting Mrs Slade who is experiencing constipation and discomfort. She is reluctant to discuss the issue but needs help. Use empathetic communication to understand her needs and know when to escalate to nursing staff.",
+  "description_html": "<p>In this scenario, you will practice discussing sensitive health concerns with a resident who is experiencing constipation. This requires empathy, professionalism, and knowing when to escalate.</p><p><strong>Learning objectives:</strong></p><ul><li>Discuss sensitive topics professionally</li><li>Recognize when to escalate to nursing staff</li><li>Provide comfort measures within your scope</li><li>Encourage hydration and fluids</li><li>Document concerns appropriately</li></ul>",
+  "youtube_video_id": "",
+  "resident": {
+    "name": "Mrs Slade",
+    "initial_state": "experiencing_constipation",
+    "goals": [
+      "report difficulty opening bowels",
+      "describe stool consistency (hard lumps)",
+      "admit problem ongoing for nearly a week",
+      "link to reduced mobility after ankle sprain",
+      "admit low fluid intake",
+      "disclose use of pain medication",
+      "accept encouragement for fluids",
+      "accept escalation to nurse"
+    ],
+    "must_disclose": [
+      "bowel problem ongoing",
+      "hard stools",
+      "reduced mobility",
+      "reduced fluids",
+      "taking pain medication"
+    ],
+    "refusals": [
+      "unwilling to drink more initially",
+      "reluctant to bother staff"
+    ],
+    "safety": {
+      "contraindications_to_check": [
+        "duration_of_constipation",
+        "fluid_intake",
+        "mobility_level",
+        "medication_side_effects"
+      ],
+      "red_flags_to_detect_from_dialogue": [
+        "problem_ongoing_for_a_week",
+        "reduced_fluids",
+        "on_pain_medication"
+      ],
+      "if_red_flag_then": "escalate to nurse, encourage hydration, reassure resident"
+    },
+    "resolution_trigger": "carer_confirms_escalation_and_encourages_fluids",
+    "end_conditions": {
+      "required_slots": [
+        "bowel_problem_reported",
+        "duration_confirmed",
+        "hydration_discussed",
+        "medication_discussed",
+        "nurse_escalation_confirmed"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Bring water",
+      "prompt": "You bring a glass of fresh water and place it within Mrs Slade's reach."
+    },
+    {
+      "title": "Contact nurse",
+      "prompt": "You contact the nurse to escalate Mrs Slade's constipation concerns and ensure she receives appropriate care."
+    }
+  ]
+}

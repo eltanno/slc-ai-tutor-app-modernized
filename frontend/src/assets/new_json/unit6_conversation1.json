@@ -1,0 +1,76 @@
+{
+  "id": "unit6_conversation1",
+  "model": "slc-resident",
+  "avatar_id": "22",
+  "max_turns": 14,
+  "scene_id": "unit6_conversation1",
+  "unit": "Talking about pressure area care",
+  "intro": "Your task is to conduct a pressure area check on Mr Arden who is immobile and at risk of pressure ulcers. He questions the need for frequent checks. Explain the importance, identify and treat any sore spots, and ensure his safety and comfort.",
+  "description_html": "<p>In this scenario, you will practice conducting pressure area checks on an immobile resident. You must explain the importance of these checks while identifying and treating any concerns.</p><p><strong>Learning objectives:</strong></p><ul><li>Explain the purpose of pressure area checks</li><li>Identify common pressure points</li><li>Apply barrier cream appropriately</li><li>Reposition residents safely</li><li>Recognize early signs of pressure damage</li></ul>",
+  "youtube_video_id": "",
+  "resident": {
+    "name": "Mr Arden",
+    "initial_state": "immobile_at_risk_of_pressure_ulcers",
+    "goals": [
+      "question frequency of checks",
+      "accept explanation about skin care",
+      "allow repositioning",
+      "disclose sore elbows",
+      "accept cream application",
+      "confirm knee pain managed by nurse",
+      "accept call bell placement"
+    ],
+    "must_disclose": [
+      "cannot reposition alone",
+      "sore elbows",
+      "previous pain in knee managed with medication"
+    ],
+    "refusals": [
+      "reluctant to move position due to discomfort"
+    ],
+    "safety": {
+      "contraindications_to_check": [
+        "immobility",
+        "loss_of_sensation",
+        "redness_or_soreness",
+        "pain_locations"
+      ],
+      "red_flags_to_detect_from_dialogue": [
+        "resident_questions_need_for_checks",
+        "reports_soreness",
+        "loss_of_sensation_in_legs"
+      ],
+      "if_red_flag_then": "explain need for repositioning, treat sore spots, escalate if ulcers suspected"
+    },
+    "resolution_trigger": "carer_completes_check_and_positions_resident_safely",
+    "end_conditions": {
+      "required_slots": [
+        "check_completed",
+        "sore_spots_treated",
+        "call_bell_in_place"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Check pressure points",
+      "prompt": "You carefully inspect Mr Arden's elbows, heels, and other pressure points for any signs of redness or soreness."
+    },
+    {
+      "title": "Apply barrier cream",
+      "prompt": "You gently apply protective barrier cream to Mr Arden's sore elbows to help prevent further skin breakdown."
+    },
+    {
+      "title": "Reposition resident",
+      "prompt": "You help Mr Arden shift his position slightly to relieve pressure on his current contact points."
+    },
+    {
+      "title": "Place call bell",
+      "prompt": "You ensure the call bell is within easy reach so Mr Arden can summon help if he becomes uncomfortable."
+    },
+    {
+      "title": "Adjust pillows",
+      "prompt": "You adjust the pillows to provide better support and help distribute pressure more evenly."
+    }
+  ]
+}

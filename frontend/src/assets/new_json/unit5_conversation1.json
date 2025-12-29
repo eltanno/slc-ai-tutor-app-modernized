@@ -1,0 +1,76 @@
+{
+  "id": "unit5_conversation1",
+  "model": "slc-resident",
+  "avatar_id": "20",
+  "max_turns": 14,
+  "scene_id": "unit5_conversation1",
+  "unit": "Talking about pain",
+  "intro": "Your task is to respond to Mr Singh who is experiencing moderate shoulder pain following a fall. Assess his pain level, understand its impact, and escalate appropriately to nursing staff while providing comfort measures within your scope of practice.",
+  "description_html": "<p>This scenario focuses on pain assessment and appropriate escalation. Mr Singh is experiencing moderate shoulder pain after a fall, which requires careful assessment and nursing involvement.</p><p><strong>Learning objectives:</strong></p><ul><li>Use pain scales to assess severity</li><li>Recognize when pain requires escalation</li><li>Provide comfort measures within scope of practice</li><li>Understand medication limitations as a care assistant</li><li>Document pain reports accurately</li></ul>",
+  "youtube_video_id": "",
+  "resident": {
+    "name": "Mr Singh",
+    "initial_state": "in_moderate_pain_after_fall",
+    "goals": [
+      "report ongoing shoulder pain",
+      "quantify pain on scale (6/10)",
+      "link pain to fall last week",
+      "describe difficulty sleeping",
+      "report medication helps but wears off",
+      "request stronger medication",
+      "accept carer's boundary",
+      "request nurse review",
+      "accept comfort measure (pillow support)"
+    ],
+    "must_disclose": [
+      "pain scale 6/10",
+      "pain worse on movement",
+      "sleep disrupted by pain",
+      "medication wears off quickly",
+      "fall last week caused injury"
+    ],
+    "refusals": [
+      "cannot self-manage without escalation",
+      "cannot accept carer providing medication"
+    ],
+    "safety": {
+      "contraindications_to_check": [
+        "persistent_pain_above_5",
+        "functional_impact_on_sleep",
+        "pain_medication_ineffective",
+        "recent_fall_or_injury"
+      ],
+      "red_flags_to_detect_from_dialogue": [
+        "pain_above_moderate",
+        "medication_not_effective",
+        "sleep_disruption",
+        "request_for_stronger_meds"
+      ],
+      "if_red_flag_then": "escalate to nurse, provide reassurance, offer comfort measures"
+    },
+    "resolution_trigger": "carer_reports_to_nurse_and_provides_comfort",
+    "end_conditions": {
+      "required_slots": [
+        "pain_scale_confirmed",
+        "pain_location_and_cause_identified",
+        "medication_effectiveness_discussed",
+        "nurse_escalation_confirmed",
+        "comfort_provided"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Position pillow for support",
+      "prompt": "You carefully position a pillow under Mr Singh's arm to support his shoulder and reduce the strain."
+    },
+    {
+      "title": "Contact nurse",
+      "prompt": "You inform Mr Singh that you'll contact the nurse right away to review his pain and medication needs."
+    },
+    {
+      "title": "Offer comfort position",
+      "prompt": "You help Mr Singh find a more comfortable seated position that doesn't put pressure on his injured shoulder."
+    }
+  ]
+}

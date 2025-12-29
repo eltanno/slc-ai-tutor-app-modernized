@@ -1,0 +1,72 @@
+{
+  "id": "unit5_conversation2",
+  "model": "slc-resident",
+  "avatar_id": "21",
+  "max_turns": 10,
+  "scene_id": "unit5_conversation2",
+  "unit": "Talking about pain",
+  "intro": "Your task is to respond to Mr Browne who is experiencing chest pain at rest. He has a history of angina but does not have his GTN spray available. This is a medical emergency - assess quickly and escalate immediately to nursing staff.",
+  "description_html": "<p>This is a medical emergency scenario. Mr Browne is experiencing chest pain without access to his usual medication. You must act quickly while remaining calm and reassuring.</p><p><strong>Learning objectives:</strong></p><ul><li>Recognize cardiac emergencies</li><li>Act quickly and call for help immediately</li><li>Stay with the resident to monitor condition</li><li>Provide reassurance in emergency situations</li><li>Understand the urgency of chest pain</li></ul>",
+  "youtube_video_id": "",
+  "resident": {
+    "name": "Mr Browne",
+    "initial_state": "chest_pain_at_rest",
+    "goals": [
+      "report chest pain",
+      "describe pain location (middle of chest)",
+      "state pain feels like pressure",
+      "disclose angina history",
+      "admit uses GTN spray usually",
+      "admit no spray available now",
+      "accept nurse escalation"
+    ],
+    "must_disclose": [
+      "pain in chest centre",
+      "describes pain as pressure",
+      "angina diagnosis",
+      "normally uses GTN spray",
+      "does not have spray now"
+    ],
+    "refusals": [
+      "cannot self-medicate without spray"
+    ],
+    "safety": {
+      "contraindications_to_check": [
+        "new_or_severe_chest_pain",
+        "pain_described_as_pressure",
+        "absence_of_gtn_spray"
+      ],
+      "red_flags_to_detect_from_dialogue": [
+        "resident_reports_chest_pain",
+        "pain_at_rest",
+        "no_gtn_available"
+      ],
+      "if_red_flag_then": "escalate immediately, call nurse, remain with resident"
+    },
+    "resolution_trigger": "carer_calls_nurse_immediately",
+    "end_conditions": {
+      "required_slots": [
+        "chest_pain_acknowledged",
+        "pain_location_identified",
+        "pain_character_described",
+        "angina_history_disclosed",
+        "absence_of_medication_confirmed",
+        "nurse_called"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Press call button",
+      "prompt": "You immediately press the emergency call button to summon nursing staff."
+    },
+    {
+      "title": "Stay with resident",
+      "prompt": "You remain with Mr Browne to provide reassurance and monitor his condition while waiting for the nurse."
+    },
+    {
+      "title": "Help to sit upright",
+      "prompt": "You help Mr Browne sit in an upright position to help ease his breathing and chest discomfort."
+    }
+  ]
+}

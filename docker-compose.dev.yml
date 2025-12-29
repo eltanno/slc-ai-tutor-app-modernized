@@ -1,0 +1,41 @@
+services:
+
+  # Open WebUI
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open-webui
+    volumes:
+      - open-webui:/app/backend/data
+    extra_hosts:
+      - host.docker.internal:host-gateway
+    restart: unless-stopped
+    ports:
+      - 8080:8080
+    environment:
+      - ENV=dev
+
+  pipelines:
+    image: ghcr.io/open-webui/pipelines:main
+    container_name: pipelines
+    volumes:
+      - pipelines:/app/pipelines
+    restart: always
+    environment:
+      - PIPELINES_API_KEY=${PIPELINES_API_KEY}
+
+  # SLC APP
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PWD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - ${DB_PORT}:5432
+    volumes:
+      - ./.db_data:/var/lib/postgresql/data
+
+volumes:
+  open-webui: {}
+  pipelines: {}

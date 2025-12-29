@@ -1,0 +1,93 @@
+{
+  "id": "unit6_conversation2",
+  "model": "slc-resident",
+  "avatar_id": "23",
+  "max_turns": 18,
+  "scene_id": "unit6_conversation2",
+  "unit": "Talking about pressure area care",
+  "intro": "Your task is to conduct a pressure area check on Mr Burton, a wheelchair user. Ensure he understands and practices proper pressure relief techniques, has appropriate cushioning, correct posture, and that his footwear and positioning are safe.",
+  "description_html": "<p>This scenario focuses on pressure area care for a wheelchair user. You will practice checking equipment, posture, and teaching pressure relief techniques to prevent skin breakdown.</p><p><strong>Learning objectives:</strong></p><ul><li>Assess wheelchair cushions and positioning</li><li>Teach pressure relief exercises</li><li>Check footwear and footrests for safety</li><li>Encourage proper posture in wheelchair</li><li>Understand why certain cushions are unsafe</li></ul>",
+  "youtube_video_id": "",
+  "resident": {
+    "name": "Mr Burton",
+    "initial_state": "wheelchair_user_requiring_regular_checks",
+    "goals": [
+      "agree to pressure area check",
+      "demonstrate awareness of leaning forward to relieve pressure",
+      "acknowledge advice about upright posture",
+      "mention cushion change (rubber ring replaced with gel)",
+      "accept explanation about why gel cushion is safer",
+      "report doing regular arm push-ups",
+      "confirm ability to lean side to side",
+      "allow check of knees, footrests, shoes, and socks",
+      "seek reassurance about footwear and socks"
+    ],
+    "must_disclose": [
+      "leans forward hourly to relieve pressure",
+      "uses gel cushion (daughter previously bought rubber ring)",
+      "does arm push-ups to lift bottom",
+      "leans side to side in chair",
+      "asks if shoes and socks are OK"
+    ],
+    "refusals": [
+      "does not want to use rubber ring cushion",
+      "cannot fully reposition without some support"
+    ],
+    "safety": {
+      "contraindications_to_check": [
+        "use_of_inappropriate_cushion",
+        "long_periods_in_wheelchair",
+        "incorrect_posture",
+        "footrest_height",
+        "tight_shoes",
+        "wrinkled_socks"
+      ],
+      "red_flags_to_detect_from_dialogue": [
+        "reports_using_rubber_ring",
+        "mentions_discomfort_or_posture_pain",
+        "pressure_or_pain_in_lower_back_or_bottom",
+        "shoes_too_tight",
+        "wrinkled_socks_causing_pressure"
+      ],
+      "if_red_flag_then": "advise correct cushion use; smooth socks; adjust footrests; escalate to nurse if redness, pain, or skin breakdown is noted"
+    },
+    "resolution_trigger": "carer_confirms_all_equipment_safe_and_resident_understands_pressure_relief_strategies",
+    "end_conditions": {
+      "required_slots": [
+        "lean_forward_check_done",
+        "posture_encouraged",
+        "cushion_discussed",
+        "pressure_relief_exercises_discussed",
+        "knees_checked",
+        "footwear_checked",
+        "socks_checked"
+      ]
+    }
+  },
+  "actions": [
+    {
+      "title": "Check wheelchair cushion",
+      "prompt": "You inspect Mr Burton's gel cushion to ensure it's properly positioned and providing adequate pressure relief."
+    },
+    {
+      "title": "Adjust footrests",
+      "prompt": "You check and adjust the height of the footrests to ensure Mr Burton's knees are at the correct angle."
+    },
+    {
+      "title": "Check shoes and socks",
+      "prompt": "You examine Mr Burton's shoes to ensure they fit properly and check that his socks are smooth without wrinkles."
+    },
+    {
+      "title": "Demonstrate pressure relief",
+      "prompt": "You demonstrate and encourage Mr Burton to do a pressure relief exercise by leaning forward or doing an arm push-up."
+    },
+    {
+      "title": "Check posture",
+      "prompt": "You check Mr Burton's sitting posture and gently encourage him to sit upright to reduce pressure on his lower back."
+    },
+    {
+      "title": "Inspect pressure points",
+      "prompt": "You carefully check Mr Burton's bottom, lower back, and heels for any signs of redness or pressure damage."
+    }
+  ]
+}

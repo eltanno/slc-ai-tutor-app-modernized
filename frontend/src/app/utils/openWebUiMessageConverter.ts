@@ -30,12 +30,13 @@ export const convertMessagesToOpenWebUIFormat = (
     const historyMessages: Record<string, OpenWebUIMessage> = {};
     const messageArray: OpenWebUIMessage[] = [];
     let previousId: string | null = null;
+    const baseTimestamp = Date.now();
 
     messages.forEach((msg, index) => {
-        const messageId = `msg-${Date.now()}-${index}`;
-        const timestamp = Math.floor(Date.now() / 1000);
+        const messageId = `msg-${baseTimestamp}-${index}`;
+        const timestamp = Math.floor(baseTimestamp / 1000);
         const nextIndex = index + 1;
-        const nextId = nextIndex < messages.length ? `msg-${Date.now()}-${nextIndex}` : null;
+        const nextId = nextIndex < messages.length ? `msg-${baseTimestamp}-${nextIndex}` : null;
 
         const openWebUIMessage: OpenWebUIMessage = {
             id: messageId,

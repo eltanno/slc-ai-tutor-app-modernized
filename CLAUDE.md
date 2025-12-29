@@ -103,3 +103,15 @@ SLC AI Tutor App - A modernized AI tutoring application.
 - **Backend:** Python (FastAPI), located in `backend/`
 - **Frontend:** Located in `frontend/`
 - **Docs:** `docs/`
+
+## Development Environment
+
+**IMPORTANT: Node.js version requirement**
+
+Before running ANY npm or node commands, ensure you're using Node 20:
+
+```bash
+nvm use 20
+```
+
+The frontend requires Node.js 20+ for Vite 7, Vitest 4, and coverage tools to work correctly.

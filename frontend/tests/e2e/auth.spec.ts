@@ -3,6 +3,8 @@ import { TEST_USER } from './fixtures/test-data';
 
 test.describe('Authentication', () => {
   test.beforeEach(async ({ page }) => {
+    // Navigate first to avoid SecurityError on about:blank
+    await page.goto('/login');
     // Clear any existing auth state
     await page.context().clearCookies();
     await page.evaluate(() => localStorage.clear());
@@ -25,8 +27,11 @@ test.describe('Authentication', () => {
   test('should show validation errors for empty form submission', async ({ page }) => {
     await page.goto('/login');
 
-    // Click submit without filling form
-    await page.getByRole('button', { name: 'Sign In' }).click();
+    // Touch both fields to trigger validation (Formik only shows errors for touched fields)
+    await page.getByLabel('Email Address').focus();
+    await page.getByLabel('Email Address').blur();
+    await page.getByLabel('Password').focus();
+    await page.getByLabel('Password').blur();
 
     // Check for validation errors
     await expect(page.getByText('Email is required')).toBeVisible();
@@ -74,8 +79,14 @@ test.describe('Authentication', () => {
     // Should be on dashboard
     await expect(page).toHaveURL(/\/dashboard/);
 
-    // Dashboard should show app header
-    await expect(page.getByRole('button', { name: 'SLC AI Demo App' })).toBeVisible();
+    // Close welcome dialog if it appears
+    const closeButton = page.getByRole('button', { name: 'close' });
+    if (await closeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await closeButton.click();
+    }
+
+    // Dashboard should show app header (MUI Button with Link component has role=link)
+    await expect(page.getByRole('link', { name: 'SLC AI Demo App' })).toBeVisible({ timeout: 10000 });
   });
 
   test('should successfully logout and redirect to login', async ({ page }) => {
@@ -88,7 +99,13 @@ test.describe('Authentication', () => {
     // Wait for dashboard
     await expect(page).toHaveURL(/\/dashboard/);
 
-    // Click logout
+    // Close welcome dialog if it appears
+    const closeButton = page.getByRole('button', { name: 'close' });
+    if (await closeButton.isVisible({ timeout: 2000 }).catch(() => false)) {
+      await closeButton.click();
+    }
+
+    // Click logout (MUI Button with Link component has role=link)
     await page.getByRole('link', { name: 'Log out' }).click();
 
     // Should be back on login page

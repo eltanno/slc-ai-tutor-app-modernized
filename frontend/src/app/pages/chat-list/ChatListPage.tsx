@@ -4,18 +4,10 @@ import {
     Typography,
     Box,
     List,
-    ListItem,
-    ListItemButton,
-    ListItemText,
-    CircularProgress,
-    Alert,
-    Chip,
-    IconButton,
     Tabs,
     Tab,
     Grid
 } from "@mui/material";
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useGetChatsQuery, useDeleteChatMutation } from "../../services/Chat.api.ts";
 import { useGetLoggedInUserQuery } from "../../services/Auth.api.ts";
 import { useNavigate } from "react-router-dom";
@@ -24,7 +16,9 @@ import { useState } from "react";
 import UserList from "../../components/user-list/UserList.tsx";
 import UserChatsList from "../../components/user-chats-list/UserChatsList.tsx";
 import type { UserData } from "../../types/User.ts";
-import { formatDate } from "../../utils/dateUtils";
+import AsyncDataWrapper from "../../components/async-data-wrapper";
+import EmptyState from "../../components/empty-state";
+import ChatListItem from "../../components/chat-list-item";
 
 const ChatListPage = () => {
     const { data, isLoading, error } = useGetChatsQuery({ page: 1, page_size: 100 });
@@ -67,136 +61,79 @@ const ChatListPage = () => {
         setSelectedUser(user);
     };
 
-    if (isLoading) {
-        return (
-            <Container maxWidth="lg" sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
-                <CircularProgress />
-            </Container>
-        );
-    }
-
-    if (error) {
-        return (
-            <Container maxWidth="lg" sx={{ py: 4 }}>
-                <Alert severity="error">
-                    Failed to load chats. Please try again later.
-                </Alert>
-            </Container>
-        );
-    }
-
     const chatList = data?.items || [];
 
     return (
-        <Container maxWidth="lg" sx={{ py: 4 }}>
-            <Paper elevation={3} sx={{ p: 4 }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                    Chats
-                </Typography>
+        <AsyncDataWrapper
+            isLoading={isLoading}
+            error={error}
+            errorMessage="Failed to load chats. Please try again later."
+            useContainer
+            containerMaxWidth="lg"
+        >
+            <Container maxWidth="lg" sx={{ py: 4 }}>
+                <Paper elevation={3} sx={{ p: 4 }}>
+                    <Typography variant="h4" component="h1" gutterBottom>
+                        Chats
+                    </Typography>
 
-                <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-                    <Tabs value={currentTab} onChange={handleTabChange}>
-                        <Tab label="My Chats" />
-                        {isStaff && <Tab label="All Users" />}
-                    </Tabs>
-                </Box>
-
-                {currentTab === 0 && (
-                    <Box>
-                        <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
-                            {data?.pagination.total_items || 0} {data?.pagination.total_items === 1 ? 'chat' : 'chats'} found
-                        </Typography>
-
-                        {chatList.length === 0 ? (
-                            <Box sx={{ py: 4, textAlign: 'center' }}>
-                                <Typography variant="body1" color="text.secondary">
-                                    No chats yet. Start a new conversation to get started!
-                                </Typography>
-                            </Box>
-                        ) : (
-                            <List>
-                                {chatList.map((chat) => (
-                                    <ListItem
-                                        key={chat.id}
-                                        disablePadding
-                                        sx={{
-                                            mb: 1,
-                                            borderRadius: 1,
-                                            border: 1,
-                                            borderColor: 'divider'
-                                        }}
-                                        secondaryAction={
-                                            <IconButton
-                                                edge="end"
-                                                aria-label="delete"
-                                                onClick={(e) => handleDelete(e, chat.id)}
-                                                disabled={deletingId === chat.id}
-                                                color="error"
-                                            >
-                                                <DeleteIcon />
-                                            </IconButton>
-                                        }
-                                    >
-                                        <ListItemButton onClick={() => handleChatClick(chat.id)}>
-                                            <ListItemText
-                                                primary={
-                                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                                                        <Typography variant="h6" component="span">
-                                                            {chat.title || 'Untitled Chat'}
-                                                        </Typography>
-                                                        {chat.completed && (
-                                                            <Chip label="Completed" size="small" color="success" />
-                                                        )}
-                                                    </Box>
-                                                }
-                                                secondary={
-                                                    <Box>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            Last updated: {formatDate(chat.updated_at)}
-                                                        </Typography>
-                                                        <Typography variant="body2" color="text.secondary">
-                                                            {chat.interaction_count} {chat.interaction_count === 1 ? 'message' : 'messages'}
-                                                            {chat.score !== null && ` • Score: ${chat.score.toFixed(1)}`}
-                                                        </Typography>
-                                                        {chat.avatar_id && (
-                                                            <Typography variant="caption" color="text.secondary">
-                                                                Avatar: {chat.avatar_id}
-                                                            </Typography>
-                                                        )}
-                                                    </Box>
-                                                }
-                                            />
-                                        </ListItemButton>
-                                    </ListItem>
-                                ))}
-                            </List>
-                        )}
+                    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                        <Tabs value={currentTab} onChange={handleTabChange}>
+                            <Tab label="My Chats" />
+                            {isStaff && <Tab label="All Users" />}
+                        </Tabs>
                     </Box>
-                )}
 
-                {currentTab === 1 && isStaff && (
-                    <Grid container spacing={1}>
-                        <Grid size={5}>
-                            <UserList
-                                onUserClick={handleUserClick}
-                                selectedUserId={selectedUser?.id}
-                            />
-                        </Grid>
-                        <Grid size={7}>
-                            {selectedUser ? (
-                                <UserChatsList user={selectedUser} />
+                    {currentTab === 0 && (
+                        <Box>
+                            <Typography variant="body1" color="text.secondary" sx={{ mb: 3 }}>
+                                {data?.pagination.total_items || 0} {data?.pagination.total_items === 1 ? 'chat' : 'chats'} found
+                            </Typography>
+
+                            {chatList.length === 0 ? (
+                                <EmptyState message="No chats yet. Start a new conversation to get started!" />
                             ) : (
-                                <Box sx={{ py: 4, textAlign: 'center' }}>
-                                    <Typography variant="body1" color="text.secondary">
-                                        Select a user to view their chats
-                                    </Typography>
-                                </Box>
+                                <List>
+                                    {chatList.map((chat) => (
+                                        <ChatListItem
+                                            key={chat.id}
+                                            id={chat.id}
+                                            title={chat.title}
+                                            completed={chat.completed}
+                                            updatedAt={chat.updated_at}
+                                            interactionCount={chat.interaction_count}
+                                            score={chat.score}
+                                            avatarId={chat.avatar_id}
+                                            onClick={handleChatClick}
+                                            onDelete={handleDelete}
+                                            isDeleting={deletingId === chat.id}
+                                        />
+                                    ))}
+                                </List>
                             )}
+                        </Box>
+                    )}
+
+                    {currentTab === 1 && isStaff && (
+                        <Grid container spacing={1}>
+                            <Grid size={5}>
+                                <UserList
+                                    onUserClick={handleUserClick}
+                                    selectedUserId={selectedUser?.id}
+                                />
+                            </Grid>
+                            <Grid size={7}>
+                                {selectedUser ? (
+                                    <UserChatsList user={selectedUser} />
+                                ) : (
+                                    <EmptyState message="Select a user to view their chats" />
+                                )}
+                            </Grid>
                         </Grid>
-                    </Grid>
-                )}
-            </Paper>
-        </Container>
+                    )}
+                </Paper>
+            </Container>
+        </AsyncDataWrapper>
     );
 };
 

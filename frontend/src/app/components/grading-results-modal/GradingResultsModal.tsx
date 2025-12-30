@@ -4,14 +4,12 @@
 
 import {
     Dialog,
-    DialogTitle,
     DialogContent,
     DialogActions,
     Button,
-    IconButton,
 } from "@mui/material";
-import CloseIcon from "@mui/icons-material/Close";
 import GradingResults from "../grading-results/GradingResults";
+import ModalHeader from "../modal-header";
 import type { ChatGradingResponse } from "../../types/Grading";
 
 interface GradingResultsModalProps {
@@ -31,21 +29,7 @@ export default function GradingResultsModal({ open, onClose, grading }: GradingR
             fullWidth
             scroll="paper"
         >
-            <DialogTitle sx={{ m: 0, p: 2, pr: 6 }}>
-                Your Performance Results
-                <IconButton
-                    aria-label="close"
-                    onClick={onClose}
-                    sx={{
-                        position: 'absolute',
-                        right: 8,
-                        top: 8,
-                        color: (theme) => theme.palette.grey[500],
-                    }}
-                >
-                    <CloseIcon />
-                </IconButton>
-            </DialogTitle>
+            <ModalHeader title="Your Performance Results" onClose={onClose} />
             <DialogContent dividers>
                 <GradingResults grading={grading} />
             </DialogContent>

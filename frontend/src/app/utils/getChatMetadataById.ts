@@ -11,25 +11,10 @@ import unit6_conversation1 from '../../assets/new_json/unit6_conversation1.json'
 import unit6_conversation2 from '../../assets/new_json/unit6_conversation2.json'
 import unit7_conversation1 from '../../assets/new_json/unit7_conversation1.json'
 import unit8_conversation1 from '../../assets/new_json/unit8_conversation1.json'
+import type { ChatMetadata, ChatAction } from '../types/ChatMetadata';
 
-export interface ChatAction {
-    title: string;
-    prompt: string;
-}
-
-export interface ChatMetadata {
-    id: string;
-    model: string;
-    unit: string;
-    intro: string;
-    description_html: string;
-    youtube_video_id: string;
-    avatar_id: string;
-    max_turns?: number;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resident: any;
-    actions?: ChatAction[];
-}
+// Re-export for backward compatibility
+export type { ChatMetadata, ChatAction };
 
 export const CHAT_METADATA_LIST: ChatMetadata[] = [
     unit1_conversation1,

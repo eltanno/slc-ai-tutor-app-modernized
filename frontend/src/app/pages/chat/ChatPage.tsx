@@ -10,7 +10,7 @@ import GradeChatButton from "../../components/grade-chat-button/GradeChatButton.
 import GradingResultsModal from "../../components/grading-results-modal/GradingResultsModal.tsx";
 import GetHelpButton from "../../components/get-help-button/GetHelpButton.tsx";
 import HelpModal from "../../components/help-modal/HelpModal.tsx";
-import type { ApiError } from "../../types/Error.ts";
+import { extractErrorMessage } from "../../utils/errorUtils";
 import type { ChatAction, ChatMetadata } from "../../utils/getChatMetadataById.ts";
 import type { ChatMessage } from "../../services/Chat.api.ts";
 import type { ChatGradingResponse } from "../../types/Grading.ts";
@@ -164,12 +164,10 @@ const ChatPage = () => {
             if ('data' in messageResponse && messageResponse.data) {
                 // Response is 202 ACCEPTED - polling will update the UI when complete
             } else if ('error' in messageResponse) {
-                const error = messageResponse.error as ApiError;
-                setErrorMessage(error.message || "Failed to send message");
+                setErrorMessage(extractErrorMessage(messageResponse.error, "Failed to send message"));
             }
         } catch (e) {
-            const error = e as ApiError;
-            setErrorMessage(error.data?.detail || "An error occurred");
+            setErrorMessage(extractErrorMessage(e, "An error occurred"));
         }
         setIsSubmitting(false);
     };
@@ -198,12 +196,10 @@ const ChatPage = () => {
             if ('data' in messageResponse && messageResponse.data) {
                 // Response is 202 ACCEPTED - polling will update the UI when complete
             } else if ('error' in messageResponse) {
-                const error = messageResponse.error as ApiError;
-                setErrorMessage(error.message || "Failed to send action");
+                setErrorMessage(extractErrorMessage(messageResponse.error, "Failed to send action"));
             }
         } catch (e) {
-            const error = e as ApiError;
-            setErrorMessage(error.data?.detail || "An error occurred");
+            setErrorMessage(extractErrorMessage(e, "An error occurred"));
         }
         setIsSubmitting(false);
     };

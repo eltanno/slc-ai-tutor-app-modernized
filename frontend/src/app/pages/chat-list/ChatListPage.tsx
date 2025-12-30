@@ -24,6 +24,7 @@ import { useState } from "react";
 import UserList from "../../components/user-list/UserList.tsx";
 import UserChatsList from "../../components/user-chats-list/UserChatsList.tsx";
 import type { UserData } from "../../types/User.ts";
+import { formatDate } from "../../utils/dateUtils";
 
 const ChatListPage = () => {
     const { data, isLoading, error } = useGetChatsQuery({ page: 1, page_size: 100 });
@@ -55,10 +56,6 @@ const ChatListPage = () => {
                 setDeletingId(null);
             }
         }
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString();
     };
 
     const handleTabChange = (_event: React.SyntheticEvent, newValue: number) => {

@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button, CircularProgress } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useGetHelpMutation } from "../../services/Chat.api";
+import { extractErrorMessage, hasErrorStatus, errorMessageContains } from "../../utils/errorUtils";
 
 interface GetHelpButtonProps {
     chatId: number | null;
@@ -52,20 +53,17 @@ export default function GetHelpButton({
                     onHelpReceived(helpText);
                 }
             } else if ('error' in response) {
-                // Extract detailed error information
-                const error = response.error as { data?: { detail?: string; message?: string }; message?: string; status?: number };
-
                 // If it's a 400 error about already requested, show a more user-friendly message
-                if (error?.status === 400 && error?.data?.message?.includes('already been requested')) {
+                if (hasErrorStatus(response.error, 400) && errorMessageContains(response.error, 'already been requested')) {
                     if (onError) {
                         onError("You've already requested help for this turn. Continue the conversation to request help again.");
                     }
                 } else {
-                    const errorDetail = error?.data?.detail ||
-                                       error?.data?.message ||
-                                       error?.message ||
-                                       "Failed to get help from tutor";
                     console.error("Help API Error:", response.error);
+                    const errorDetail = extractErrorMessage(
+                        response.error,
+                        "Failed to get help from tutor"
+                    );
                     if (onError) {
                         onError(`Tutor Error: ${errorDetail}`);
                     }
@@ -73,11 +71,10 @@ export default function GetHelpButton({
             }
         } catch (err) {
             console.error("Help request error:", err);
-            const error = err as { data?: { detail?: string; message?: string }; message?: string };
-            const errorMessage = error?.data?.detail ||
-                                error?.data?.message ||
-                                error?.message ||
-                                "An error occurred while getting help";
+            const errorMessage = extractErrorMessage(
+                err,
+                "An error occurred while getting help"
+            );
             if (onError) {
                 onError(errorMessage);
             }

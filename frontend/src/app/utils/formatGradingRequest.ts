@@ -3,22 +3,10 @@
  */
 
 import type { ChatMessage } from "../services/Chat.api";
+import type { GradingChatMetadata } from "../types/ChatMetadata";
 
-export interface ChatMetadata {
-    id: string;
-    model: string;
-    avatar_id: string;
-    max_turns?: number;
-    scene_id?: string;
-    unit: string;
-    intro: string;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    resident: any; // Flexible to match the actual chat metadata structure
-    actions?: Array<{
-        title: string;
-        prompt: string;
-    }>;
-}
+// Re-export for backward compatibility
+export type { GradingChatMetadata as ChatMetadata };
 
 /**
  * Format chat messages and metadata into a grading request for the LLM

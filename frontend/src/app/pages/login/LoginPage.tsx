@@ -9,7 +9,7 @@ import ModalLayout from "../../layout/ModalLayout.tsx";
 import usePreferences from "../../utils/usePreferences.ts";
 import {useEffect} from "react";
 import { APP_ROUTES } from '../../../constants.ts';
-import type { ApiError } from '../../types/Error.ts';
+import { extractErrorMessage } from '../../utils/errorUtils';
 
 interface FormValues {
     email: string;
@@ -57,12 +57,10 @@ const LoginPage = (): React.ReactNode => {
                 await setRefreshToken(response.data.refresh);
                 navigate(APP_ROUTES.DASHBOARD);
             }else if(response.error){
-                const error = response.error as ApiError;
-                setErrorMessage(error.data.detail);
+                setErrorMessage(extractErrorMessage(response.error, "Login failed"));
             }
         }catch (e) {
-            const error = e as ApiError;
-            setErrorMessage(error.data.detail)
+            setErrorMessage(extractErrorMessage(e, "An error occurred during login"));
         }
         setSubmitting(false);
     }

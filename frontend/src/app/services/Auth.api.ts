@@ -1,18 +1,6 @@
 import {api} from "./Api.ts";
 import type { UserData } from "../types/User";
-
-export interface PaginatedResponse<T> {
-  status: string;
-  pagination: {
-    page: number;
-    page_size: number;
-    total_pages: number;
-    total_items: number;
-    next_page: number | null;
-    prev_page: number | null;
-  };
-  items: T[];
-}
+import type { PaginatedResponse } from "../types/Api";
 
 export const authApi = api.injectEndpoints({
     endpoints: (builder) => ({

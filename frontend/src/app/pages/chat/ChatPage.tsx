@@ -1,19 +1,17 @@
-import {Box, Button, Grid, TextField, Typography, Stack, Backdrop, CircularProgress} from "@mui/material";
-import DownloadIcon from '@mui/icons-material/Download';
-import {useSendMessageMutation, useGetChatQuery} from "../../services/Chat.api.ts";
-import {useEffect, useState} from "react";
+import { Box, Grid } from "@mui/material";
+import { useSendMessageMutation, useGetChatQuery } from "../../services/Chat.api.ts";
+import { useEffect, useState } from "react";
 import Conversation from "../../components/conversation/Conversation.tsx";
 import usePreferences from "../../utils/usePreferences.ts";
-import {useParams} from "react-router-dom";
+import { useParams } from "react-router-dom";
 import TutorDialogModal from "../../components/tutor-dialog-modal/TutorDialogModal.tsx";
-import GradeChatButton from "../../components/grade-chat-button/GradeChatButton.tsx";
 import GradingResultsModal from "../../components/grading-results-modal/GradingResultsModal.tsx";
-import GetHelpButton from "../../components/get-help-button/GetHelpButton.tsx";
 import HelpModal from "../../components/help-modal/HelpModal.tsx";
 import { extractErrorMessage } from "../../utils/errorUtils";
 import type { ChatAction, ChatMetadata } from "../../utils/getChatMetadataById.ts";
 import type { ChatMessage } from "../../services/Chat.api.ts";
 import type { ChatGradingResponse } from "../../types/Grading.ts";
+import { ChatInputForm, ChatSidebar, LoadingOverlay } from "./components";
 
 const ChatPage = () => {
     const { id } = useParams();
@@ -44,7 +42,7 @@ const ChatPage = () => {
     // Poll for updates ONLY when processing
     const { data: chatQueryData } = useGetChatQuery(djangoChatId!, {
         skip: !djangoChatId,
-        pollingInterval: isProcessing ? 2000 : 0, // Poll every 2 seconds only when processing
+        pollingInterval: isProcessing ? 2000 : 0,
     });
 
     // Use the polled data if available, otherwise use initial data
@@ -61,14 +59,13 @@ const ChatPage = () => {
     // Update status from active data
     const activeStatus = activeChatData?.chat?.status;
     const isComplete = activeChatData?.chat?.completed || activeStatus === 'complete';
-    // Chat is graded if grading_data exists and doesn't have an error property
     const isGraded = !!activeChatData?.chat?.grading_data && !('error' in activeChatData.chat.grading_data);
 
     // Get loading message based on status
     const getLoadingMessage = () => {
         if (activeStatus === 'thinking') return 'AI is thinking...';
         if (activeStatus === 'in_progress') return 'Processing your message...';
-        if (activeStatus === 'getting_help') return <>Getting help from tutor,<br/>This may take a couple of minutes,<br/>please be patient...</>;
+        if (activeStatus === 'getting_help') return <>Getting help from tutor,<br />This may take a couple of minutes,<br />please be patient...</>;
         if (activeStatus === 'grading') return <>Grading your conversation,<br />This may take up to 5 minutes,<br />please be patient or check back later...</>;
         return 'Processing...';
     };
@@ -78,11 +75,8 @@ const ChatPage = () => {
         if (activeChatData?.chat) {
             const fetchedChat = activeChatData.chat;
 
-            // If chat has messages, use them directly from the backend
             if (fetchedChat.messages && fetchedChat.messages.length > 0) {
                 setMessages(fetchedChat.messages);
-
-                // Calculate turn count from user messages
                 const userMessageCount = fetchedChat.messages.filter(m => m.role === 'user').length;
                 setTurnCount(userMessageCount);
 
@@ -91,7 +85,6 @@ const ChatPage = () => {
                     const usedIndices = new Set<number>();
                     fetchedChat.messages.forEach(msg => {
                         if (msg.role === 'scenario') {
-                            // Find which action this corresponds to
                             const actionIndex = chatData.actions?.findIndex(
                                 action => action.prompt === msg.content
                             );
@@ -120,12 +113,10 @@ const ChatPage = () => {
 
             // Update grading data if completed and valid
             if (fetchedChat.grading_data && !gradingData) {
-                // Check if it's an error object
                 if ('error' in fetchedChat.grading_data) {
                     console.error('Grading failed:', fetchedChat.grading_data.error);
                     setErrorMessage(`Grading failed: ${fetchedChat.grading_data.error}`);
                 } else if (fetchedChat.grading_data.communication_quality) {
-                    // Valid grading data (has communication_quality means it's valid)
                     setGradingData(fetchedChat.grading_data);
                     setShowGradingModal(true);
                 }
@@ -149,21 +140,16 @@ const ChatPage = () => {
         if (!input.trim() || maxTurnsReached || !djangoChatId) return;
         setIsSubmitting(true);
         try {
-            // Increment turn count
             setTurnCount(prev => prev + 1);
-
             const userMessageText = input;
             setInput("");
 
-            // Send message through Django API (async)
             const messageResponse = await sendMessage({
                 chatId: djangoChatId,
                 message: userMessageText,
             });
 
-            if ('data' in messageResponse && messageResponse.data) {
-                // Response is 202 ACCEPTED - polling will update the UI when complete
-            } else if ('error' in messageResponse) {
+            if ('error' in messageResponse) {
                 setErrorMessage(extractErrorMessage(messageResponse.error, "Failed to send message"));
             }
         } catch (e) {
@@ -173,29 +159,22 @@ const ChatPage = () => {
     };
 
     const handleActionClick = async (action: ChatAction, actionIndex: number) => {
-        // Prevent using the same action twice or if max turns reached
         if (usedActionIndices.has(actionIndex) || maxTurnsReached || !djangoChatId) {
             return;
         }
 
         setIsSubmitting(true);
         try {
-            // Increment turn count
             setTurnCount(prev => prev + 1);
-
-            // Mark this action as used
             setUsedActionIndices(prev => new Set([...prev, actionIndex]));
 
-            // Send action through Django API with is_action flag
             const messageResponse = await sendMessage({
                 chatId: djangoChatId,
                 message: action.prompt,
-                isAction: true,  // Flag to tell backend this is an action/scenario
+                isAction: true,
             });
 
-            if ('data' in messageResponse && messageResponse.data) {
-                // Response is 202 ACCEPTED - polling will update the UI when complete
-            } else if ('error' in messageResponse) {
+            if ('error' in messageResponse) {
                 setErrorMessage(extractErrorMessage(messageResponse.error, "Failed to send action"));
             }
         } catch (e) {
@@ -212,14 +191,12 @@ const ChatPage = () => {
         const timestamp = new Date().toLocaleString();
         const residentName = chatData?.resident?.name || 'AI Tutor';
 
-        // Determine score from grading data
         let scoreText = 'Incomplete';
         if (chat.grading_data && !('error' in chat.grading_data)) {
-            const gradingData = chat.grading_data as ChatGradingResponse;
-            scoreText = gradingData.communication_quality?.overall_score?.toString() || 'N/A';
+            const gradingResponse = chat.grading_data as ChatGradingResponse;
+            scoreText = gradingResponse.communication_quality?.overall_score?.toString() || 'N/A';
         }
 
-        // Build transcript
         let transcript = `Chat Transcript: ${chatTitle}\n`;
         transcript += `Exported: ${timestamp}\n`;
         transcript += `Total Messages: ${messages.length}\n`;
@@ -227,7 +204,6 @@ const ChatPage = () => {
         transcript += `Score: ${scoreText}\n`;
         transcript += `\n${'='.repeat(60)}\n\n`;
 
-        // Add messages
         messages.forEach((msg, index) => {
             const role = msg.role === 'user' ? 'Student' :
                         msg.role === 'assistant' ? residentName :
@@ -238,7 +214,6 @@ const ChatPage = () => {
             transcript += `${msg.content}\n\n`;
         });
 
-        // Create and download file
         const blob = new Blob([transcript], { type: 'text/plain' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -250,213 +225,75 @@ const ChatPage = () => {
         URL.revokeObjectURL(url);
     };
 
-    if(!chatData){
+    if (!chatData) {
         return <Box p={2}>Chat not found</Box>;
     }
 
     return (
-        <Grid container sx={{
-            width: "100%",
-            height: `calc(100vh - 105px)`,
-            backgroundColor: '#e0e0e0',
-            overflow: 'hidden'
-            }}>
+        <Grid container sx={{ width: "100%", height: `calc(100vh - 105px)`, backgroundColor: '#e0e0e0', overflow: 'hidden' }}>
             <Grid size={10} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <Box id="chat-area" sx={{ flexGrow: 1, minHeight: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
                     <Box sx={{ flexGrow: 1, overflowY: 'auto', bgcolor: '#fafafa', p: 2 }}>
                         <Conversation messages={messages} leftAvatarId={userAvatarId} rightAvatarId={chatData.avatar_id} />
                     </Box>
-                    <Box component="form" onSubmit={e => { e.preventDefault(); handleSend(); }}
-                        display="flex" flexDirection="column" alignItems="stretch" px={2} bgcolor="#fff" boxShadow={1} sx={{ borderTop: '1px solid #eee', minHeight: 72, flexShrink: 0, justifyContent: 'center' }}>
-                        <>
-                        {errorMessage !== "" && (
-                            <Box color="red" mb={1} fontSize={14}>{errorMessage}</Box>
-                        )}
-                        </>
-                        <Box display="flex" alignItems="center" gap={2}>
-                            <TextField
-                                value={input}
-                                onChange={e => setInput(e.target.value)}
-                                placeholder="Type a message..."
-                                variant="outlined"
-                                size="small"
-                                fullWidth
-                                multiline
-                                minRows={1}
-                                maxRows={4}
-                                sx={{ flex: 1 }}
-                                disabled={isSubmitting || maxTurnsReached}
-                            />
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                disabled={!input.trim() || isSubmitting || maxTurnsReached}
-                                sx={{ minWidth: 100 }}
-                                loading={isSubmitting}
-                            >
-                                Send
-                            </Button>
-                        </Box>
-                    </Box>
+                    <ChatInputForm
+                        value={input}
+                        onChange={setInput}
+                        onSubmit={handleSend}
+                        disabled={maxTurnsReached}
+                        isSubmitting={isSubmitting}
+                        errorMessage={errorMessage}
+                    />
                 </Box>
             </Grid>
             <Grid size={2} sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                <Box p={2} height="100%" display="flex" flexDirection="column" bgcolor="#f5f5f5" borderLeft="1px solid #e0e0e0" sx={{ overflowY: 'auto' }}>
-                    {/* Turn Counter */}
-                    <Box mb={3}>
-                        <Typography variant="h6" gutterBottom>
-                            Turns
-                        </Typography>
-                        <Box
-                            sx={{
-                                p: 2,
-                                bgcolor: maxTurnsReached ? '#ffebee' : '#e3f2fd',
-                                borderRadius: 1,
-                                textAlign: 'center'
-                            }}
-                        >
-                            <Typography variant="h4" component="div" fontWeight="bold">
-                                {turnCount} / {maxTurns === Infinity ? '∞' : maxTurns}
-                            </Typography>
-                            {turnsRemaining <= 3 && turnsRemaining > 0 && (
-                                <Typography variant="caption" color="warning.main">
-                                    {turnsRemaining} turn{turnsRemaining !== 1 ? 's' : ''} remaining
-                                </Typography>
-                            )}
-                            {maxTurnsReached && (
-                                <Typography variant="caption" color="error.main">
-                                    Max turns reached
-                                </Typography>
-                            )}
-                        </Box>
-                    </Box>
-
-                    {/* Actions */}
-                    <Typography variant="h6" gutterBottom>
-                        Actions
-                    </Typography>
-                    <Stack spacing={1} sx={{ overflowY: 'auto', flexGrow: 1, minHeight: 0 }}>
-
-                        {/* Scenario-specific actions */}
-                        {chatData.actions && chatData.actions.length > 0 ? (
-                            chatData.actions.map((action, index) => (
-                                <Button
-                                    key={index}
-                                    variant="outlined"
-                                    size="small"
-                                    onClick={() => handleActionClick(action, index)}
-                                    disabled={isSubmitting || usedActionIndices.has(index) || maxTurnsReached}
-                                    sx={{
-                                        textTransform: 'none',
-                                        justifyContent: 'flex-start',
-                                        textAlign: 'left',
-                                        opacity: usedActionIndices.has(index) ? 0.5 : 1,
-                                    }}
-                                >
-                                    {action.title}
-                                </Button>
-                            ))
-                        ) : null}
-                    </Stack>
-                    {/* Complete Chat and Score */}
-                    <Box mt={3}>
-                        <Typography variant="h6" gutterBottom>
-                            Complete Chat and Score
-                        </Typography>
-                        {/* Get Help Button - disabled when completed, graded, grading, or max turns reached */}
-                        <GetHelpButton
-                            chatId={djangoChatId}
-                            onHelpReceived={(help) => {
-                                setHelpText(help);
-                                setShowHelpModal(true);
-                            }}
-                            onError={(error) => {
-                                setErrorMessage(error);
-                            }}
-                            disabled={isSubmitting || isComplete || isGraded || maxTurnsReached || chatStatus === 'grading'}
-                            fullWidth
-                        />
-                        {/* Grade Button - disabled only when already graded (max turns is OK) */}
-                        <GradeChatButton
-                            chatId={djangoChatId}
-                            onGradingComplete={(grading) => {
-                                setGradingData(grading);
-                                setShowGradingModal(true);
-                            }}
-                            onError={(error) => {
-                                setErrorMessage(error);
-                            }}
-                            disabled={isSubmitting || messages.length <= 1 || isGraded}
-                            fullWidth
-                        />
-                    </Box>
-
-                    {/* Export Chat */}
-                    <Box mt={2}>
-                        <Typography variant="h6" gutterBottom>
-                            Export
-                        </Typography>
-                        <Button
-                            variant="outlined"
-                            fullWidth
-                            startIcon={<DownloadIcon />}
-                            onClick={handleExportChat}
-                            disabled={messages.length === 0}
-                            sx={{ mb: 1 }}
-                        >
-                            Download Transcript
-                        </Button>
-                    </Box>
-                </Box>
+                <ChatSidebar
+                    turnCount={turnCount}
+                    maxTurns={maxTurns}
+                    turnsRemaining={turnsRemaining}
+                    maxTurnsReached={maxTurnsReached}
+                    actions={chatData.actions}
+                    usedActionIndices={usedActionIndices}
+                    onActionClick={handleActionClick}
+                    chatId={djangoChatId}
+                    isSubmitting={isSubmitting}
+                    isComplete={isComplete}
+                    isGraded={isGraded}
+                    isGrading={chatStatus === 'grading'}
+                    messageCount={messages.length}
+                    onHelpReceived={(help) => {
+                        setHelpText(help);
+                        setShowHelpModal(true);
+                    }}
+                    onGradingComplete={(grading) => {
+                        setGradingData(grading);
+                        setShowGradingModal(true);
+                    }}
+                    onError={setErrorMessage}
+                    onExport={handleExportChat}
+                />
             </Grid>
 
-            {/* Grading Results Modal */}
             <GradingResultsModal
                 open={showGradingModal}
                 onClose={() => setShowGradingModal(false)}
                 grading={gradingData}
             />
 
-            {/* Help Modal */}
             <HelpModal
                 open={showHelpModal}
                 onClose={() => setShowHelpModal(false)}
                 helpText={helpText}
             />
 
-            {/* Welcome Dialog */}
             <TutorDialogModal
                 open={!hasSeenWelcome}
-                handleClose={() => setSeenDialog('chat-intro-'+id, true)}
+                handleClose={() => setSeenDialog('chat-intro-' + id, true)}
                 title={chatData.unit}
                 message={chatData.intro}
             />
 
-            {/* Loading Overlay */}
-            <Backdrop
-                sx={{
-                    color: '#fff',
-                    zIndex: (theme) => theme.zIndex.drawer + 1,
-                    position: 'absolute',
-                    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-                }}
-                open={isProcessing}
-            >
-                <Box
-                    sx={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        gap: 2,
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: 3,
-                        borderRadius: 2,
-                    }}
-                >
-                    <CircularProgress color="inherit" />
-                    <Typography variant="h6">{getLoadingMessage()}</Typography>
-                </Box>
-            </Backdrop>
+            <LoadingOverlay open={isProcessing} message={getLoadingMessage()} />
         </Grid>
     );
 };

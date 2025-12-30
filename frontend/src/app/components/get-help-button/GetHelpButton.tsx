@@ -2,7 +2,7 @@
  * Button component to request help from the conversation helper LLM
  */
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button, CircularProgress } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useGetHelpMutation } from "../../services/Chat.api";
@@ -32,41 +32,30 @@ export default function GetHelpButton({
     const [getHelp] = useGetHelpMutation();
     const [isGettingHelp, setIsGettingHelp] = useState(false);
 
-    const handleGetHelp = async () => {
+    const handleGetHelp = useCallback(async () => {
         if (!chatId) {
-            if (onError) {
-                onError("Chat must be saved before requesting help");
-            }
+            onError?.("Chat must be saved before requesting help");
             return;
         }
 
         setIsGettingHelp(true);
 
         try {
-            // Send help request to Django API
             const response = await getHelp(chatId);
 
             if ('data' in response && response.data) {
-                const helpText = response.data.help_text;
-
-                if (onHelpReceived) {
-                    onHelpReceived(helpText);
-                }
+                onHelpReceived?.(response.data.help_text);
             } else if ('error' in response) {
-                // If it's a 400 error about already requested, show a more user-friendly message
+                // Handle special case: already requested help for this turn
                 if (hasErrorStatus(response.error, 400) && errorMessageContains(response.error, 'already been requested')) {
-                    if (onError) {
-                        onError("You've already requested help for this turn. Continue the conversation to request help again.");
-                    }
+                    onError?.("You've already requested help for this turn. Continue the conversation to request help again.");
                 } else {
                     console.error("Help API Error:", response.error);
                     const errorDetail = extractErrorMessage(
                         response.error,
                         "Failed to get help from tutor"
                     );
-                    if (onError) {
-                        onError(`Tutor Error: ${errorDetail}`);
-                    }
+                    onError?.(`Tutor Error: ${errorDetail}`);
                 }
             }
         } catch (err) {
@@ -75,13 +64,11 @@ export default function GetHelpButton({
                 err,
                 "An error occurred while getting help"
             );
-            if (onError) {
-                onError(errorMessage);
-            }
+            onError?.(errorMessage);
         } finally {
             setIsGettingHelp(false);
         }
-    };
+    }, [chatId, getHelp, onHelpReceived, onError]);
 
     return (
         <Button

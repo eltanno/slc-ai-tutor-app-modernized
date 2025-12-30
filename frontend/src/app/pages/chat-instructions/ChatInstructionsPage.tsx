@@ -19,6 +19,7 @@ import { YouTubeEmbed } from "../../components/youtube-embed";
 import { useCreateChatMutation } from "../../services/Chat.api.ts";
 import { getChatMetadataById } from "../../utils/getChatMetadataById.ts";
 import usePreferences from "../../utils/usePreferences.ts";
+import { logger } from "../../utils/logger";
 
 const ChatInstructionsPage = () => {
     const { id } = useParams();
@@ -61,7 +62,7 @@ const ChatInstructionsPage = () => {
             // Navigate to the chat page with the Django chat ID
             navigate(APP_ROUTES.CHAT.replace(':id', response.chat.id.toString()));
         } catch (err) {
-            console.error("Failed to create chat:", err);
+            logger.error("Failed to create chat:", err);
             const error = err as { data?: { message?: string }; message?: string };
             setError(error?.data?.message || error?.message || "Failed to create chat. Please try again.");
             setIsCreating(false);

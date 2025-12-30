@@ -19,6 +19,7 @@ import type { UserData } from "../../types/User.ts";
 import AsyncDataWrapper from "../../components/async-data-wrapper";
 import EmptyState from "../../components/empty-state";
 import ChatListItem from "../../components/chat-list-item";
+import { logger } from "../../utils/logger";
 
 const ChatListPage = () => {
     const { data, isLoading, error } = useGetChatsQuery({ page: 1, page_size: 100 });
@@ -44,7 +45,7 @@ const ChatListPage = () => {
             try {
                 await deleteChat(chatId).unwrap();
             } catch (error) {
-                console.error('Failed to delete chat:', error);
+                logger.error('Failed to delete chat:', error);
                 alert('Failed to delete chat. Please try again.');
             } finally {
                 setDeletingId(null);

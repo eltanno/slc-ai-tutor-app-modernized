@@ -3,6 +3,7 @@ import {
     type FetchArgs,
     fetchBaseQuery,
     type FetchBaseQueryError,
+    type BaseQueryApi,
     retry
 } from "@reduxjs/toolkit/query";
 import {Mutex} from "async-mutex";
@@ -32,8 +33,11 @@ const baseQueryWithRetry = retry(baseQuery, {maxRetries: 0});
 const baseQueryWithNoRetry = retry(baseQuery, {maxRetries: 0});
 const mutex = new Mutex();
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (args: any, api: any, extraOptions: any) => {
+const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQueryError> = async (
+    args: string | FetchArgs,
+    api: BaseQueryApi,
+    extraOptions: object
+) => {
     await mutex.waitForUnlock();
     let redirectOnLogout = false;
     let result = await baseQueryWithRetry(args, api, extraOptions);
@@ -61,13 +65,11 @@ const baseQueryWithReauth: BaseQueryFn<string | FetchArgs, unknown, FetchBaseQue
             } finally {
                 release();
                 if (redirectOnLogout) {
-                    // window.location.href = '/login';
+                    void redirectOnLogout; // Placeholder for potential redirect logic
                 }
             }
         } else {
-            // Wait for the mutex to be released (another request is refreshing the token)
             await mutex.waitForUnlock();
-            // Retry the original request with the new token
             result = await baseQueryWithRetry(args, api, extraOptions);
         }
     }
@@ -91,10 +93,3 @@ export const api = createApi({
 export const {
     useGetNotesQuery,
 } = api;
-
-
-// export const enhancedApi = api.enhanceEndpoints({
-//     endpoints: () => ({
-//         getNotes: () => '/notes',
-//     })
-// });

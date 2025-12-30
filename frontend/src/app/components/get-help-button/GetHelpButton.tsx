@@ -7,6 +7,7 @@ import { Button, CircularProgress } from "@mui/material";
 import HelpOutlineIcon from "@mui/icons-material/HelpOutline";
 import { useGetHelpMutation } from "../../services/Chat.api";
 import { extractErrorMessage, hasErrorStatus, errorMessageContains } from "../../utils/errorUtils";
+import { logger } from "../../utils/logger";
 
 interface GetHelpButtonProps {
     chatId: number | null;
@@ -50,7 +51,7 @@ export default function GetHelpButton({
                 if (hasErrorStatus(response.error, 400) && errorMessageContains(response.error, 'already been requested')) {
                     onError?.("You've already requested help for this turn. Continue the conversation to request help again.");
                 } else {
-                    console.error("Help API Error:", response.error);
+                    logger.error("Help API Error:", response.error);
                     const errorDetail = extractErrorMessage(
                         response.error,
                         "Failed to get help from tutor"
@@ -59,7 +60,7 @@ export default function GetHelpButton({
                 }
             }
         } catch (err) {
-            console.error("Help request error:", err);
+            logger.error("Help request error:", err);
             const errorMessage = extractErrorMessage(
                 err,
                 "An error occurred while getting help"

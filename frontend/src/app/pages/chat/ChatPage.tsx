@@ -8,6 +8,7 @@ import TutorDialogModal from "../../components/tutor-dialog-modal/TutorDialogMod
 import GradingResultsModal from "../../components/grading-results-modal/GradingResultsModal.tsx";
 import HelpModal from "../../components/help-modal/HelpModal.tsx";
 import { extractErrorMessage } from "../../utils/errorUtils";
+import { logger } from "../../utils/logger";
 import type { ChatAction, ChatMetadata } from "../../utils/getChatMetadataById.ts";
 import type { ChatMessage } from "../../services/Chat.api.ts";
 import type { ChatGradingResponse } from "../../types/Grading.ts";
@@ -114,7 +115,7 @@ const ChatPage = () => {
             // Update grading data if completed and valid
             if (fetchedChat.grading_data && !gradingData) {
                 if ('error' in fetchedChat.grading_data) {
-                    console.error('Grading failed:', fetchedChat.grading_data.error);
+                    logger.error('Grading failed:', fetchedChat.grading_data.error);
                     setErrorMessage(`Grading failed: ${fetchedChat.grading_data.error}`);
                 } else if (fetchedChat.grading_data.communication_quality) {
                     setGradingData(fetchedChat.grading_data);
@@ -129,7 +130,7 @@ const ChatPage = () => {
                     setHelpText(latestHelp.help_text);
                     setShowHelpModal(true);
                 } else if (latestHelp.status === 'error') {
-                    console.error('Help request failed:', latestHelp.help_text);
+                    logger.error('Help request failed:', latestHelp.help_text);
                     setErrorMessage(`Help request failed: ${latestHelp.help_text}`);
                 }
             }

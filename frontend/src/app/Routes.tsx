@@ -11,11 +11,9 @@ import ChatInstructionsPage from "./pages/chat-instructions/ChatInstructionsPage
 import AvatarSelectPage from "./pages/avatar-select/AvatarSelectPage.tsx";
 import usePreferences from "./utils/usePreferences.ts";
 import {useEffect} from "react";
-import TestPage from "./pages/test-page/TestPage.tsx";
 import ChatListPage from "./pages/chat-list/ChatListPage.tsx";
 import ShowChatPage from "./pages/show-chat/ShowChatPage.tsx";
 import { APP_ROUTES } from "../constants.ts";
-import LayoutTest from "./pages/chat/LayoutTest.tsx";
 
 const Logout = () => {
     const {resetState} = usePreferences();
@@ -31,9 +29,7 @@ const Logout = () => {
 const AppRoutes = () => {
     return (
         <Routes>
-            <Route path={APP_ROUTES.LAYOUT_TEST} element={<LayoutTest /> as ReactNode} />
             <Route path={APP_ROUTES.HOMEPAGE} element={<HomePage /> as ReactNode} />
-            <Route path={APP_ROUTES.TEST} element={<TestPage /> as ReactNode} />
             <Route path={APP_ROUTES.LOGIN} element={<LoginPage /> as ReactNode} />
             <Route path={APP_ROUTES.LOGOUT} element={<Logout /> as ReactNode} />
             <Route path={'/'} element={<MainLayout />  as ReactNode} >

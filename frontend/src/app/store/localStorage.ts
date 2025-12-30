@@ -1,3 +1,4 @@
+import { logger } from "../utils/logger";
 
 export const loadState = (): unknown => {
     try {
@@ -16,6 +17,6 @@ export const saveState = (state: unknown): void => {
         const serialState = JSON.stringify(state);
         localStorage.setItem('appState', serialState);
     } catch (err) {
-        console.error(err);
+        logger.error("Failed to save state to localStorage:", err);
     }
 };

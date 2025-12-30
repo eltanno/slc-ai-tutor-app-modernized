@@ -5,6 +5,7 @@
 
 import { useState, useCallback } from "react";
 import { extractErrorMessage } from "../utils/errorUtils";
+import { logger } from "../utils/logger";
 
 export interface MutationResult<TData> {
     data?: TData;
@@ -75,7 +76,7 @@ export function useMutationHandler<TArg, TData, TResult = TData>(
                     onSuccess(result);
                 }
             } else if ('error' in response) {
-                console.error("Mutation API Error:", response.error);
+                logger.error("Mutation API Error:", response.error);
                 const errorDetail = extractErrorMessage(
                     response.error,
                     defaultErrorMessage
@@ -85,7 +86,7 @@ export function useMutationHandler<TArg, TData, TResult = TData>(
                 }
             }
         } catch (err) {
-            console.error("Mutation error:", err);
+            logger.error("Mutation error:", err);
             const errorMessage = extractErrorMessage(err, defaultErrorMessage);
             if (onError) {
                 onError(errorMessage);

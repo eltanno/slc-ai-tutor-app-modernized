@@ -4,6 +4,7 @@ import {useRefreshTokenMutation} from "../../services/Auth.api.ts";
 import {Navigate, useNavigate} from "react-router-dom";
 import {jwtDecode} from "jwt-decode";
 import usePreferences from "../../utils/usePreferences.ts";
+import { logger } from "../../utils/logger";
 
 interface ForceLoginProps {
     children: ReactNode;
@@ -49,7 +50,7 @@ const ForceLogin = ({children}: ForceLoginProps) => {
                         forceLogout();
                     }
                 }catch(e){
-                    console.error("Error refreshing token:", e);
+                    logger.error("Error refreshing token:", e);
                     forceLogout();
                 }
             }else{
@@ -68,7 +69,7 @@ const ForceLogin = ({children}: ForceLoginProps) => {
                 checkPerformed.current = true;
                 await checkAccessToken();
             }catch(e){
-                console.error("Error during auth check:", e);
+                logger.error("Error during auth check:", e);
                 forceLogout();
             }
         };

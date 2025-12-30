@@ -1,5 +1,6 @@
 import { api } from "./Api";
 import type { ChatGradingResponse } from "../types/Grading";
+import type { PaginatedResponse } from "../types/Api";
 
 export interface ChatMessage {
   role: 'user' | 'assistant' | 'system' | 'scenario';
@@ -51,19 +52,6 @@ export interface ChatUpdateRequest {
   interaction_count?: number;
   completed?: boolean;
   openwebui_chat_id?: string;
-}
-
-export interface PaginatedResponse<T> {
-  status: string;
-  pagination: {
-    page: number;
-    page_size: number;
-    total_pages: number;
-    total_items: number;
-    next_page: number | null;
-    prev_page: number | null;
-  };
-  items: T[];
 }
 
 const chatApi = api.injectEndpoints({

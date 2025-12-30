@@ -6,6 +6,7 @@ import { useState } from "react";
 import { Button, CircularProgress } from "@mui/material";
 import { useGradeChatMutation } from "../../services/Chat.api";
 import type { ChatGradingResponse } from "../../types/Grading";
+import { extractErrorMessage } from "../../utils/errorUtils";
 
 interface GradeChatButtonProps {
     chatId: number | null;
@@ -55,24 +56,21 @@ export default function GradeChatButton({
                 }
 
             } else if ('error' in response) {
-                // Extract detailed error information
-                const error = response.error as { data?: { detail?: string; message?: string }; message?: string };
-                const errorDetail = error?.data?.detail ||
-                                   error?.data?.message ||
-                                   error?.message ||
-                                   "Failed to get grading response from server";
                 console.error("Grading API Error:", response.error);
+                const errorDetail = extractErrorMessage(
+                    response.error,
+                    "Failed to get grading response from server"
+                );
                 if (onError) {
                     onError(`Grading Error: ${errorDetail}`);
                 }
             }
         } catch (err) {
             console.error("Grading error:", err);
-            const error = err as { data?: { detail?: string; message?: string }; message?: string };
-            const errorMessage = error?.data?.detail ||
-                                error?.data?.message ||
-                                error?.message ||
-                                "An error occurred while grading the chat";
+            const errorMessage = extractErrorMessage(
+                err,
+                "An error occurred while grading the chat"
+            );
             if (onError) {
                 onError(errorMessage);
             }

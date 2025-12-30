@@ -13,6 +13,7 @@ import { useGetUserChatsQuery } from "../../services/Chat.api";
 import { useNavigate } from "react-router-dom";
 import { APP_ROUTES } from "../../../constants";
 import type { UserData } from "../../types/User";
+import { formatDate } from "../../utils/dateUtils";
 
 interface UserChatsListProps {
     user: UserData;
@@ -28,10 +29,6 @@ const UserChatsList = ({ user }: UserChatsListProps) => {
 
     const handleChatClick = (chatId: number) => {
         navigate(APP_ROUTES.CHAT.replace(':id', chatId.toString()));
-    };
-
-    const formatDate = (dateString: string) => {
-        return new Date(dateString).toLocaleString();
     };
 
     if (isLoading) {
